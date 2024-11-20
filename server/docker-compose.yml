@@ -2,7 +2,6 @@ version: '3.8'
 
 services:
   web:
-    # For x64 and ARM architecture
     build: .
     container_name: moodle-web
     ports:
@@ -11,8 +10,8 @@ services:
       - db
     volumes:
       - ./custom.ini:/usr/local/etc/php/conf.d/custom.ini
-      # Remove this line for production testing
       - ./moodle/mod/livequiz:/var/www/html/mod/livequiz
+      - ./scripts:/scripts # Mount the scripts directory
 
   db:
     image: mariadb:10.5

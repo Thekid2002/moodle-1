@@ -121,6 +121,7 @@ class livequiz_services {
 
         global $DB;
         $transaction = $DB->start_delegated_transaction();
+
         try {
             $livequiz->update_quiz();
 
@@ -128,7 +129,6 @@ class livequiz_services {
 
             livequiz_quiz_lecturer_relation::append_lecturer_quiz_relation($quizid, $lecturerid);
             $this->submit_questions($livequiz, $lecturerid);
-
 
             $transaction->allow_commit();
         } catch (dml_exception $e) {

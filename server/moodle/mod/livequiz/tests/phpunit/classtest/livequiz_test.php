@@ -249,7 +249,6 @@ final class livequiz_test extends advanced_testcase {
         $this->assertIsInt($data->quizid);
         $this->assertEquals($livequiz->get_id(), $data->quizid);
 
-
         // Verify correct quiztitle.
         $this->assertIsString($data->quiztitle);
         $this->assertEquals($livequiz->get_name(), $data->quiztitle);
