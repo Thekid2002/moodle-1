@@ -256,16 +256,11 @@ final class livequiz_service_test extends \advanced_testcase {
         self::assertEquals($livequiz->get_timecreated(), $livequizresult->get_timecreated());
         self::assertEquals($livequiz->get_timemodified(), $livequizresult->get_timemodified());
 
-
         $getlecturer = $service->get_livequiz_question_lecturer($questions[0]->get_id());
         self::assertEquals($getlecturer['lecturer_id'], $lecturerid);
 
         $getquiz = $service->get_livequiz_quiz_lecturer($livequiz->get_id());
         self::assertEquals($getquiz['lecturer_id'], $lecturerid);
-
-
-
-
 
         // The amount of questions remain the same.
         $questionsresult = $livequizresult->get_questions();
@@ -348,14 +343,14 @@ final class livequiz_service_test extends \advanced_testcase {
      * Test of new_participation
      * @covers \mod_livequiz\services\livequiz_services::new_participation
      */
-    public function test_new_participation(): void {
+    public function test_insert_participation(): void {
         $participationdata = $this->create_participation_data_for_test();
         $service = livequiz_services::get_singleton_service_instance();
 
         $actualstudentid = $participationdata['studentid'];
         $acutalquizid = $participationdata['quizid'];
 
-        $participation = $service->new_participation($actualstudentid, $acutalquizid);
+        $participation = $service->insert_participation($actualstudentid, $acutalquizid);
         $this->assertInstanceOf(participation::class, $participation);
         $this->assertEquals($participation->get_studentid(), $actualstudentid);
         $this->assertEquals($participation->get_livequizid(), $acutalquizid);
