@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  web:
+    # For x64 and ARM architecture
+    build: .
+    container_name: moodle-web
+    ports:
+      - "80:80"
+    depends_on:
+      - db
+    volumes:
+      - ./custom.ini:/usr/local/etc/php/conf.d/custom.ini
+      # Remove this line for production testing
+      - ./moodle/mod/livequiz:/var/www/html/mod/livequiz
+
+  db:
+    image: mariadb:10.5
+    container_name: moodle-mariadb
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./MoodleSQL.sql:/docker-entrypoint-initdb.d/MoodleSQL.sql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=moodle
+      - MYSQL_USER=moodle
+      - MYSQL_PASSWORD=moodlepassword
+    ports:
+      - "3306:3306"
+
+volumes:
+  mariadb_data:
