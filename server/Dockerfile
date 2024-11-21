@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     zip \
     pdo \
     pdo_mysql \
+    mysqli \
     sodium \
     pgsql \
     pdo_pgsql \
