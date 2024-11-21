@@ -45,6 +45,7 @@ use mod_livequiz\models\participation;
 use mod_livequiz\models\student_quiz_relation;
 
 use mod_livequiz\models\student_answers_relation;
+use mod_livequiz\unitofwork\unit_of_work;
 use PhpXmlRpc\Exception;
 use function PHPUnit\Framework\throwException;
 
@@ -62,6 +63,7 @@ class livequiz_services {
      * @var livequiz_services|null $instance
      */
     private static ?livequiz_services $instance = null;
+    private static ?unit_of_work $unitOfWork = null;
 
     /**
      * livequiz_services constructor.
@@ -75,6 +77,7 @@ class livequiz_services {
      * @return livequiz_services
      */
     public static function get_singleton_service_instance(): livequiz_services {
+        self::$unitOfWork = new unit_of_work();
         if (self::$instance == null) {
             self::$instance = new livequiz_services();
         }
@@ -119,22 +122,13 @@ class livequiz_services {
             }
         }
 
-        global $DB;
-        $transaction = $DB->start_delegated_transaction();
-
-        try {
-            $livequiz->update_quiz();
-
-            $quizid = $livequiz->get_id();
-
-            livequiz_quiz_lecturer_relation::append_lecturer_quiz_relation($quizid, $lecturerid);
-            $this->submit_questions($livequiz, $lecturerid);
-
-            $transaction->allow_commit();
-        } catch (dml_exception $e) {
-            $transaction->rollback($e);
-            throw $e;
-        }
+        self::$unitOfWork->begin_transaction();
+        self::$unitOfWork->livequiz->update($livequiz);
+         $livequiz->update_quiz(self::$unitOfWork);
+         $quizid = $livequiz->get_id();
+         livequiz_quiz_lecturer_relation::append_lecturer_quiz_relation($quizid, $lecturerid);
+         $this->submit_questions($livequiz, $lecturerid);
+        $transaction->allow_commit();
         return $this->get_livequiz_instance($quizid);
     }
 

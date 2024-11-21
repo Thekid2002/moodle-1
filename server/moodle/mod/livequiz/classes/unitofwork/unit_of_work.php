@@ -16,84 +16,18 @@
 
 namespace mod_livequiz\unitofwork;
 
+use mod_livequiz\repositories\livequiz_repository;
+
 defined('MOODLE_INTERNAL') || die();
 
-class UnitOfWork {
-    /**
-     * @var array $newEntities
-     */
-    private array $newEntities = [];
+class unit_of_work {
+    public livequiz_repository $livequiz;
 
-    /**
-     * @var array $dirtyEntities
-     */
-    private array $dirtyEntities = [];
-
-    /**
-     * @var array $removedEntities
-     */
-    private array $removedEntities = [];
-
-    /**
-     * Registers a new entity.
-     *
-     * @param object $entity
-     */
-    public function registerNew(object $entity): void {
-        $this->newEntities[] = $entity;
+    public function __construct()
+    {
+        $livequiz = new livequiz_repository($this);
     }
 
-    /**
-     * Registers a dirty entity.
-     *
-     * @param object $entity
-     */
-    public function registerDirty(object $entity): void {
-        $this->dirtyEntities[] = $entity;
-    }
 
-    /**
-     * Registers a removed entity.
-     *
-     * @param object $entity
-     */
-    public function registerRemoved(object $entity): void {
-        $this->removedEntities[] = $entity;
-    }
 
-    /**
-     * Gets the new entities.
-     *
-     * @return array
-     */
-    public function getNewEntities(): array {
-        return $this->newEntities;
-    }
-
-    /**
-     * Gets the dirty entities.
-     *
-     * @return array
-     */
-    public function getDirtyEntities(): array {
-        return $this->dirtyEntities;
-    }
-
-    /**
-     * Gets the removed entities.
-     *
-     * @return array
-     */
-    public function getRemovedEntities(): array {
-        return $this->removedEntities;
-    }
-
-    /**
-     * Clears the unit of work.
-     */
-    public function clear(): void {
-        $this->newEntities = [];
-        $this->dirtyEntities = [];
-        $this->removedEntities = [];
-    }
 }
