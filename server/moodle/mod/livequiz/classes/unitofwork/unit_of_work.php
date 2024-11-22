@@ -22,13 +22,39 @@ defined('MOODLE_INTERNAL') || die();
 
 class unit_of_work {
 
-    public livequiz_repository $livequiz;
+    public query_builder $livequiz;
 
-    public array data_clones = [];
+    public int $order = 0;
+    public array $deleted = [];
+    public array $new = [];
+    public array $data = [];
+    public array $data_clones = [];
+    private bool $transaction_started = false;
 
     public function __construct()
     {
-        self::$livequiz = new livequiz_repository($this);
+        $this->livequiz = new query_builder(new livequiz_repository($this));
+    }
+
+    public function commit()
+    {
+        $queries = [];
+        if ($this->transaction_started) {
+            $queries[] = 'BEGIN;';
+        }
+        foreach ($this->data_clones as $clone) {
+            $queries[] =
+        }
+        if ($this->transaction_started) {
+            $queries[] = 'COMMIT;';
+        }
+        global $DB;
+        $DB->execute(implode(' ', $queries));
+    }
+
+    public function begin_transaction()
+    {
+        $this->transaction_started = true;
     }
 
 }

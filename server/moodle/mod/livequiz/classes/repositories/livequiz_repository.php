@@ -2,6 +2,7 @@
 
 namespace mod_livequiz\repositories;
 
+use dml_exception;
 use mod_livequiz\models\livequiz;
 use mod_livequiz\unitofwork\query_builder;
 use mod_livequiz\unitofwork\unit_of_work;
@@ -17,19 +18,47 @@ class livequiz_repository extends abstract_crud_repository {
         $this->tablename = 'livequiz';
     }
 
-    function select(): query_builder
-    {
-        return new query_builder($this);
-    }
-
-    function select_all(): array
+    /**
+     * @throws \dml_exception
+     */
+    function select(query_builder $query_builder): livequiz
     {
         global $DB;
-        $quizes = $DB->get_records_sql('SELECT * FROM {livequiz}');
-        foreach ($quizes as $quiz) {
-            $this->unit_of_work->data_clones[] = clone $quiz;
+        $sql = $query_builder->toSql();
+        $result = $DB->get_record_sql($sql, $query_builder->bindings);
+        if(!$result) {
+            throw new dml_exception('No livequiz found');
         }
-        return $quizes;
+        $livequiz = new livequiz($result->id, $result->name, $result->description, $result->startdate, $result->enddate, $result->duration, $result->lecturerid);
+        if(!$livequiz) {
+            throw new dml_exception('No livequiz found');
+        }
+        $livequizclone = $livequiz->clone();
+        $this->unit_of_work->data_clones[] = $livequizclone;
+        $this->unit_of_work->data[] = $livequiz;
+        return $livequiz;
+    }
+
+    function select_all(query_builder $query_builder): array
+    {
+        global $DB;
+        $sql = $query_builder->toSql();
+        $results = $DB->get_records_sql($sql, $query_builder->bindings);
+        if(!$results) {
+            throw new dml_exception('No livequizzes found');
+        }
+        $livequizzes = [];
+        foreach($results as $result) {
+            $livequiz = new livequiz($result->id, $result->name, $result->description, $result->startdate, $result->enddate, $result->duration, $result->lecturerid);
+            if(!$livequiz) {
+                throw new dml_exception('No livequiz found');
+            }
+            $livequizclone = $livequiz->clone();
+            $this->unit_of_work->data_clones[] = $livequizclone;
+            $this->unit_of_work->data[] = $livequiz;
+            $livequizzes[] = $livequiz;
+        }
+        return $livequizzes;
     }
 
     public function insert($data): string

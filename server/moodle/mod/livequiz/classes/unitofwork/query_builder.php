@@ -2,13 +2,14 @@
 
 namespace mod_livequiz\unitofwork;
 
+use mod_livequiz\models\abstract_db_model;
 use mod_livequiz\repositories\abstract_crud_repository;
 
 class query_builder {
     protected $select = [];
     protected $joins = [];
     protected $where = [];
-    protected $bindings = [];
+    public $bindings = [];
     protected abstract_crud_repository $repository;
 
     public function __construct(abstract_crud_repository $repository) {
@@ -52,11 +53,13 @@ class query_builder {
     /**
      * @throws \dml_exception
      */
-    public function firstordefault() {
-        global $DB;
-        $sql = $this->toSql();
-        $result = $DB->get_record_sql($sql, $this->bindings);
-        return $result;
+    public function firstordefault(): abstract_db_model {
+        return $this->repository->select($this);
+    }
+
+    public function all(): array
+    {
+        return $this->repository->select_all($this);
     }
 
     public function getBindings() {

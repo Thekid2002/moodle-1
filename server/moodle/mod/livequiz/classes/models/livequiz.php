@@ -30,7 +30,7 @@ use stdClass;
  * @copyright 2024 Software AAU
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class livequiz {
+class livequiz extends abstract_db_model {
     /**
      * @var int $id
      */
@@ -39,7 +39,7 @@ class livequiz {
     /**
      * @var string $name
      */
-    private string $name;
+    public string $name;
 
     /**
      * @var int $course
@@ -49,12 +49,12 @@ class livequiz {
     /**
      * @var string $intro
      */
-    private string $intro;
+    public string $intro;
 
     /**
      * @var int $introformat
      */
-    private int $introformat;
+    public int $introformat;
 
     /**
      * @var int $timecreated
@@ -103,37 +103,12 @@ class livequiz {
     }
 
     /**
-     * Updates the livequiz in the database, and updates the timemodified field.
-     *
-     * @return bool
-     */
-    public function update_quiz(unit_of_work $unit_of_work): bool {
-        $this->set_timemodified();
-
-        $record = new stdClass();
-        $record->id = $this->get_id();
-        $record->timemodified = $this->get_timemodified();
-
-        $unit_of_work->registerDirty($this);
-        return true;
-    }
-
-    /**
      * Gets the associated ID for the livequiz.
      *
      * @return int
      */
     public function get_id(): int {
         return $this->id;
-    }
-
-    /**
-     * Gets the name of the livequiz.
-     *
-     * @return string
-     */
-    public function get_name(): string {
-        return $this->name;
     }
 
     /**
@@ -145,23 +120,6 @@ class livequiz {
         return $this->course;
     }
 
-    /**
-     * Gets the introduction for the livequiz.
-     *
-     * @return string
-     */
-    public function get_intro(): string {
-        return $this->intro;
-    }
-
-    /**
-     * Gets the introduction format for the livequiz.
-     *
-     * @return int
-     */
-    public function get_introformat(): int {
-        return $this->introformat;
-    }
 
     /**
      * Gets the time the livequiz was created.
@@ -275,5 +233,10 @@ class livequiz {
             $data = $question->prepare_for_template($data);
         }
         return $data;
+    }
+
+    public function clone(): abstract_db_model
+    {
+        return new livequiz($this->id, $this->name, $this->course, $this->intro, $this->introformat, $this->timecreated, $this->timemodified);
     }
 }

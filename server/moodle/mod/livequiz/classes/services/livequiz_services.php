@@ -90,7 +90,7 @@ class livequiz_services {
      * @throws dml_exception
      */
     public function get_livequiz_instance(int $id): livequiz {
-        $livequiz = self::$unitOfWork->livequiz->select()
+        $livequiz = self::$unitOfWork->livequiz
             ->where('id', $id, '=')
             ->leftjoin('quiz_questions_relation', 'quiz_id', $id, 'question_id')
             ->leftjoin('questions', 'id', 'question_id', 'id')
@@ -112,8 +112,17 @@ class livequiz_services {
      *
      * @throws dml_exception|Exception
      */
-    public function submit_quiz(livequiz $livequiz, int $lecturerid): livequiz {
-        $questions = $livequiz->get_questions();
+    public function submit_quiz(livequiz $updatedlivequiz, int $lecturerid): livequiz {
+        /** @var livequiz $livequiz */
+        $livequiz = self::$unitOfWork->livequiz
+            ->where('id', $updatedlivequiz->get_id(), '=')
+            ->firstordefault();
+        $livequiz->name = $updatedlivequiz->name;
+        $livequiz->intro = $updatedlivequiz->intro;
+        $livequiz->introformat = $updatedlivequiz->introformat;
+        $livequiz->set_timemodified();
+
+        $questions = $updatedlivequiz->get_questions();
 
         if (!count($questions)) {
             throw new Exception("A Livequiz Must have at least 1 Question");
@@ -127,13 +136,7 @@ class livequiz_services {
         }
 
         self::$unitOfWork->begin_transaction();
-        self::$unitOfWork->livequiz->update($livequiz);
-         $livequiz->update_quiz(self::$unitOfWork);
-         $quizid = $livequiz->get_id();
-         livequiz_quiz_lecturer_relation::append_lecturer_quiz_relation($quizid, $lecturerid);
-         $this->submit_questions($livequiz, $lecturerid);
-        $transaction->allow_commit();
-        return $this->get_livequiz_instance($quizid);
+
     }
 
     /**
