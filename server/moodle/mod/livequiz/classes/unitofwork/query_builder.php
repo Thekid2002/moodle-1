@@ -62,11 +62,15 @@ class query_builder {
 
     /**
      * Sets the columns to select in the query.
-     * @param array $columns the columns to select
+     * @param array | string $columns the columns to select
      * @return $this the query builder
      */
-    public function select(array $columns): query_builder {
-        $this->select = $columns;
+    public function select(array | string $columns = '*'): query_builder {
+        if (is_array($columns)) {
+            $this->select = $columns;
+        } else {
+            $this->select = [$columns];
+        }
         return $this;
     }
 
@@ -125,7 +129,7 @@ class query_builder {
      * Executes the query and returns the first result or throws an exception if no results are found.
      * @throws \dml_exception if no results are found
      */
-    public function first_or_default(): abstract_db_model {
+    public function complete(): abstract_db_model {
         return $this->repository->select($this);
     }
 

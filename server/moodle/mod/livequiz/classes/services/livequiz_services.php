@@ -91,12 +91,13 @@ class livequiz_services {
      */
     public function get_livequiz_instance(int $id): livequiz {
         $livequiz = self::$unitOfWork->livequiz
+            ->select()
+            ->left_join('quiz_questions_relation', 'quiz_id', $id, 'question_id')
+            ->left_join('questions', 'id', 'question_id', 'id')
+            ->left_join('questions_answers_relation', 'question_id', 'id', 'answer_id')
+            ->left_join('answers', 'id', 'answer_id', 'id')
             ->where('id', $id, '=')
-            ->leftjoin('quiz_questions_relation', 'quiz_id', $id, 'question_id')
-            ->leftjoin('questions', 'id', 'question_id', 'id')
-            ->leftjoin('questions_answers_relation', 'question_id', 'id', 'answer_id')
-            ->leftjoin('answers', 'id', 'answer_id', 'id')
-            ->firstordefault();
+            ->complete();
 
         $livequiz->set_questions($livequiz->get_questions());
         echo print_object($livequiz);

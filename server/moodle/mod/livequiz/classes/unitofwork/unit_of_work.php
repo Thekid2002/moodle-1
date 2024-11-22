@@ -71,7 +71,7 @@ class unit_of_work {
             $queries[] = 'BEGIN;';
         }
         foreach ($this->data_clones as $clone) {
-            $queries[] = $clone->get_update_query();
+            diffenence($clone, $this->data);
         }
         if ($this->transaction_started) {
             $queries[] = 'COMMIT;';
