@@ -32,7 +32,7 @@ use mod_livequiz\services\livequiz_services;
 use mod_livequiz\models\question;
 use mod_livequiz\models\answer;
 use mod_livequiz\models\participation;
-use mod_livequiz\models\student_quiz_relation;
+use mod_livequiz\unitofwork\unit_of_work;
 use PhpXmlRpc\Exception;
 
 /**
@@ -46,19 +46,15 @@ final class livequiz_service_test extends \advanced_testcase {
      * @throws dml_exception
      */
     protected function create_livequiz_for_test(): livequiz {
-        $livequizdata = [
-            'name' => 'Test LiveQuiz',
-            'course' => 1,
-            'intro' => 'This is a test livequiz.',
-            'introformat' => 1,
-            'timecreated' => time(),
-            'timemodified' => time(),
-        ];
-
+        $unit_of_work = new unit_of_work();
+        $livequiz = new livequiz(null, 'Test LiveQuiz', 1, 'This is a test livequiz.', 1,
+            time(), time()
+        );
+        $unit_of_work->livequiz->insert
         global $DB;
-        $livequizid = $DB->insert_record('livequiz', $livequizdata);
+        $livequizid = $DB->insert_record('livequiz', $livequiz->get_data());
 
-        return livequiz::get_livequiz_instance($livequizid);
+        return livequiz::get_livequiz_from_id($livequizid);
     }
 
     /**

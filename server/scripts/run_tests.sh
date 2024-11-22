@@ -72,8 +72,9 @@ runit() {
   CURRENT_PATH="$(pwd)"
   cd "$MOODLE_ROOT"
 
-  # Run PHPUnit tests
-  for file in $(find mod/livequiz/tests/phpunit -type f); do
+  # Run PHPUnit tests in the specified directory
+  TEST_DIR=${1:-"mod/livequiz/tests/phpunit"}
+  for file in $(find "$TEST_DIR" -type f); do
     echo "Running tests in $file"
     vendor/bin/phpunit "$file"
   done

@@ -32,7 +32,7 @@ class livequiz extends abstract_db_model {
     /**
      * @var int $id
      */
-    private int $id;
+    private int | null $id;
 
     /**
      * @var string $name
@@ -72,7 +72,7 @@ class livequiz extends abstract_db_model {
     /**
      * Constructor for the livequiz class. Returns the object.
      *
-     * @param int $id
+     * @param int | null $id
      * @param string $name
      * @param int $course
      * @param string $intro
@@ -81,7 +81,7 @@ class livequiz extends abstract_db_model {
      * @param int $timemodified
      */
     public function __construct(
-        int $id,
+        int | null $id,
         string $name,
         int $course,
         string $intro,
@@ -236,5 +236,18 @@ class livequiz extends abstract_db_model {
     public function clone(): livequiz
     {
         return new livequiz($this->id, $this->name, $this->course, $this->intro, $this->introformat, $this->timecreated, $this->timemodified);
+    }
+
+    public function get_data(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'course' => $this->course,
+            'intro' => $this->intro,
+            'introformat' => $this->introformat,
+            'timecreated' => $this->timecreated,
+            'timemodified' => $this->timemodified
+        ];
     }
 }

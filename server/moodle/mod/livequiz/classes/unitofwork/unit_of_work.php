@@ -16,6 +16,7 @@
 
 namespace mod_livequiz\unitofwork;
 
+use mod_livequiz\classes\query_builder\query_builder;
 use mod_livequiz\repositories\livequiz_repository;
 
 class unit_of_work {

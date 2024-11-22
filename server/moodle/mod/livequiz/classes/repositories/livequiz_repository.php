@@ -3,11 +3,9 @@
 namespace mod_livequiz\repositories;
 
 use dml_exception;
+use mod_livequiz\classes\query_builder\query_builder;
 use mod_livequiz\models\livequiz;
-use mod_livequiz\unitofwork\query_builder;
 use mod_livequiz\unitofwork\unit_of_work;
-
-require_once('../../config.php');
 
 class livequiz_repository extends abstract_crud_repository {
     private unit_of_work $unit_of_work;

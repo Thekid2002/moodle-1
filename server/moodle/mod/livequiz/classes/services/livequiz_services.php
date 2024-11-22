@@ -97,9 +97,9 @@ class livequiz_services {
             ->left_join('questions_answers_relation', 'question_id', 'id', 'answer_id')
             ->left_join('answers', 'id', 'answer_id', 'id')
             ->where('id', $id, '=')
+            ->
             ->complete();
 
-        $livequiz->set_questions($livequiz->get_questions());
         echo print_object($livequiz);
         return $livequiz;
     }

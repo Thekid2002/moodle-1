@@ -16,8 +16,8 @@
 
 namespace mod_livequiz\repositories;
 
+use mod_livequiz\classes\query_builder\query_builder;
 use mod_livequiz\models\abstract_db_model;
-use mod_livequiz\unitofwork\query_builder;
 
 /**
  * Class abstract_crud_repository
