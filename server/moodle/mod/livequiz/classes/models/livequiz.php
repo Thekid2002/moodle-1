@@ -82,7 +82,7 @@ class livequiz {
      * @param int $timecreated
      * @param int $timemodified
      */
-    private function __construct(
+    public function __construct(
         int $id,
         string $name,
         int $course,
@@ -100,30 +100,6 @@ class livequiz {
         $this->timemodified = $timemodified;
 
         return $this;
-    }
-
-    /**
-     * Gets a livequiz instance from the DB, with all relevant attributes.
-     *
-     * TODO implement associated lecturer.
-     *
-     * @param int $id
-     * @return livequiz
-     * @throws dml_exception
-     */
-    public static function get_livequiz_instance(int $id): livequiz {
-        global $DB;
-        $quizinstance = $DB->get_record('livequiz', ['id' => $id]);
-
-        return new livequiz(
-            $quizinstance->id,
-            $quizinstance->name,
-            $quizinstance->course,
-            $quizinstance->intro,
-            $quizinstance->introformat,
-            $quizinstance->timecreated,
-            $quizinstance->timemodified
-        );
     }
 
     /**

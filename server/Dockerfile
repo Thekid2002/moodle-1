@@ -48,18 +48,16 @@ RUN chown -R www-data:www-data /var/www/html \
     && chown -R www-data:www-data /var/www/moodledata \
     && chmod -R 755 /var/www/moodledata
 
-# Check and install PHPUnit
-RUN if [ ! -f /var/www/html/vendor/bin/phpunit ]; then \
-      echo "no phpunit installed installing it now"; \
-      composer require --dev phpunit/phpunit; \
-      if [ ! -f /var/www/html/vendor/bin/phpunit ]; then \
-        echo "installing failed exiting"; \
-        exit 1; \
-      fi; \
-      echo "success installing phpunit"; \
-    else \
-      echo "phpunit found"; \
-    fi
+# Install locales package
+RUN apt-get update && apt-get install -y locales
+
+# Generate the en_AU.UTF-8 locale
+RUN sed -i '/en_AU.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
+
+# Set the locale environment variables
+ENV LANG en_AU.UTF-8
+ENV LANGUAGE en_AU:en
+ENV LC_ALL en_AU.UTF-8
 
 # Allow the dealerdirect/phpcodesniffer-composer-installer plugin
 RUN composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true

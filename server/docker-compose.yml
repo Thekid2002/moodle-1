@@ -19,6 +19,7 @@ services:
     volumes:
       - mariadb_data:/var/lib/mysql
       - ./MoodleSQL.sql:/docker-entrypoint-initdb.d/MoodleSQL.sql
+      - ./init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql # New SQL script
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=moodle

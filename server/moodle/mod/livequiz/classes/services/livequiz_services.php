@@ -90,12 +90,16 @@ class livequiz_services {
      * @throws dml_exception
      */
     public function get_livequiz_instance(int $id): livequiz {
-        $livequiz = livequiz::get_livequiz_instance($id);
+        $livequiz = self::$unitOfWork->livequiz->select()
+            ->where('id', $id, '=')
+            ->leftjoin('quiz_questions_relation', 'quiz_id', $id, 'question_id')
+            ->leftjoin('questions', 'id', 'question_id', 'id')
+            ->leftjoin('questions_answers_relation', 'question_id', 'id', 'answer_id')
+            ->leftjoin('answers', 'id', 'answer_id', 'id')
+            ->firstordefault();
 
-        $questions = $this->get_questions_with_answers($id);
-
-        $livequiz->add_questions($questions);
-
+        $livequiz->set_questions($livequiz->get_questions());
+        echo print_object($livequiz);
         return $livequiz;
     }
 
@@ -140,7 +144,6 @@ class livequiz_services {
      * @throws Exception
      */
     private function submit_questions(livequiz $livequiz, int $lecturerid): void {
-
         $existingquestions = $this->get_questions_with_answers($livequiz->get_id());
         $newquestions = $livequiz->get_questions();
 

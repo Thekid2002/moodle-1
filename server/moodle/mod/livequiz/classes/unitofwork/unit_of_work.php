@@ -21,13 +21,14 @@ use mod_livequiz\repositories\livequiz_repository;
 defined('MOODLE_INTERNAL') || die();
 
 class unit_of_work {
+
     public livequiz_repository $livequiz;
+
+    public array data_clones = [];
 
     public function __construct()
     {
-        $livequiz = new livequiz_repository($this);
+        self::$livequiz = new livequiz_repository($this);
     }
-
-
 
 }
