@@ -16,8 +16,6 @@
 
 namespace mod_livequiz\models;
 
-use dml_exception;
-use mod_livequiz\unitofwork\unit_of_work;
 use stdClass;
 
 /**
@@ -235,7 +233,7 @@ class livequiz extends abstract_db_model {
         return $data;
     }
 
-    public function clone(): abstract_db_model
+    public function clone(): livequiz
     {
         return new livequiz($this->id, $this->name, $this->course, $this->intro, $this->introformat, $this->timecreated, $this->timemodified);
     }

@@ -18,32 +18,60 @@ namespace mod_livequiz\unitofwork;
 
 use mod_livequiz\repositories\livequiz_repository;
 
-defined('MOODLE_INTERNAL') || die();
-
 class unit_of_work {
-
+    /**
+     * @var query_builder
+     */
     public query_builder $livequiz;
 
+    /**
+     * @var int the order of the queries
+     */
     public int $order = 0;
+
+    /**
+     * @var array $deleted the deleted rows
+     */
     public array $deleted = [];
+
+    /**
+     * @var array $new the new rows
+     */
     public array $new = [];
+
+    /**
+     * @var array $data the data to update
+     */
     public array $data = [];
+
+    /**
+     * @var array $data_clones the cloned data
+     */
     public array $data_clones = [];
+
+    /**
+     * @var bool $transaction_started whether the transaction has started
+     */
     private bool $transaction_started = false;
 
+    /**
+     * unit_of_work constructor.
+     */
     public function __construct()
     {
         $this->livequiz = new query_builder(new livequiz_repository($this));
     }
 
-    public function commit()
-    {
+    /**
+     * Commits the changes to the database.
+     */
+    public function commit(): void {
         $queries = [];
         if ($this->transaction_started) {
             $queries[] = 'BEGIN;';
         }
         foreach ($this->data_clones as $clone) {
-            $queries[] =
+            $queries[] = $clone->get_update_query();
         }
         if ($this->transaction_started) {
             $queries[] = 'COMMIT;';
@@ -52,8 +80,10 @@ class unit_of_work {
         $DB->execute(implode(' ', $queries));
     }
 
-    public function begin_transaction()
-    {
+    /**
+     * Begins a transaction.
+     */
+    public function begin_transaction(): void {
         $this->transaction_started = true;
     }
 
