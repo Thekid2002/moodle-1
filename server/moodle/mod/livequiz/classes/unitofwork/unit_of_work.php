@@ -16,8 +16,8 @@
 
 namespace mod_livequiz\unitofwork;
 
-use mod_livequiz\classes\query_builder\query_builder;
 use mod_livequiz\repositories\livequiz_repository;
+use mod_livequiz\classes\querybuilder\query_builder;
 
 class unit_of_work {
     /**
@@ -31,14 +31,9 @@ class unit_of_work {
     public int $order = 0;
 
     /**
-     * @var array $deleted the deleted rows
+     * @var array $queries the queries to execute
      */
-    public array $deleted = [];
-
-    /**
-     * @var array $new the new rows
-     */
-    public array $new = [];
+    public array $queries = [];
 
     /**
      * @var array $data the data to update
@@ -72,13 +67,18 @@ class unit_of_work {
             $queries[] = 'BEGIN;';
         }
         foreach ($this->data_clones as $clone) {
-            diffenence($clone, $this->data);
+            difference($clone, $this->data);
         }
         if ($this->transaction_started) {
             $queries[] = 'COMMIT;';
         }
         global $DB;
         $DB->execute(implode(' ', $queries));
+    }
+
+    public function rollback()
+    {
+
     }
 
     /**

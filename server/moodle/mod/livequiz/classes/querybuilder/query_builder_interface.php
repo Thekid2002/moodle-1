@@ -1,6 +1,6 @@
 <?php
 
-namespace mod_livequiz\classes\query_builder;
+namespace mod_livequiz\classes\querybuilder;
 
 interface query_builder_interface
 {

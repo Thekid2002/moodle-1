@@ -47,7 +47,6 @@ use mod_livequiz\models\student_quiz_relation;
 use mod_livequiz\models\student_answers_relation;
 use mod_livequiz\unitofwork\unit_of_work;
 use PhpXmlRpc\Exception;
-use function PHPUnit\Framework\throwException;
 
 /**
  * Class livequiz_services
@@ -63,7 +62,6 @@ class livequiz_services {
      * @var livequiz_services|null $instance
      */
     private static ?livequiz_services $instance = null;
-    private static ?unit_of_work $unitOfWork = null;
 
     /**
      * livequiz_services constructor.
@@ -77,7 +75,6 @@ class livequiz_services {
      * @return livequiz_services
      */
     public static function get_singleton_service_instance(): livequiz_services {
-        self::$unitOfWork = new unit_of_work();
         if (self::$instance == null) {
             self::$instance = new livequiz_services();
         }
@@ -90,14 +87,14 @@ class livequiz_services {
      * @throws dml_exception
      */
     public function get_livequiz_instance(int $id): livequiz {
-        $livequiz = self::$unitOfWork->livequiz
+        $unitOfWork = new unit_of_work();
+        $livequiz = $unitOfWork->livequiz
             ->select()
             ->left_join('quiz_questions_relation', 'quiz_id', $id, 'question_id')
             ->left_join('questions', 'id', 'question_id', 'id')
             ->left_join('questions_answers_relation', 'question_id', 'id', 'answer_id')
             ->left_join('answers', 'id', 'answer_id', 'id')
             ->where('id', $id, '=')
-            ->
             ->complete();
 
         echo print_object($livequiz);
@@ -115,29 +112,25 @@ class livequiz_services {
      */
     public function submit_quiz(livequiz $updatedlivequiz, int $lecturerid): livequiz {
         /** @var livequiz $livequiz */
-        $livequiz = self::$unitOfWork->livequiz
+        $unitOfWork = new unit_of_work();
+        $unitOfWork->begin_transaction();
+        $livequiz = $unitOfWork->livequiz
+            ->select()
             ->where('id', $updatedlivequiz->get_id(), '=')
-            ->firstordefault();
+            ->complete();
         $livequiz->name = $updatedlivequiz->name;
         $livequiz->intro = $updatedlivequiz->intro;
         $livequiz->introformat = $updatedlivequiz->introformat;
         $livequiz->set_timemodified();
 
-        $questions = $updatedlivequiz->get_questions();
-
-        if (!count($questions)) {
-            throw new Exception("A Livequiz Must have at least 1 Question");
+        try {
+            $unitOfWork->commit();
+        } catch (dml_exception $e) {
+            $unitOfWork->rollback($e);
+            echo $e->getMessage();
         }
 
-        foreach ($questions as $question) {
-            $answers = $question->get_answers();
-            if (!count($answers)) {
-                throw new Exception("A Livequiz Question must have at least 1 Answer");
-            }
-        }
-
-        self::$unitOfWork->begin_transaction();
-
+        return $livequiz;
     }
 
     /**

@@ -50,7 +50,7 @@ final class livequiz_service_test extends \advanced_testcase {
         $livequiz = new livequiz(null, 'Test LiveQuiz', 1, 'This is a test livequiz.', 1,
             time(), time()
         );
-        $unit_of_work->livequiz->insert
+        $unit_of_work->livequiz->ixnsert($livequiz);
         global $DB;
         $livequizid = $DB->insert_record('livequiz', $livequiz->get_data());
 

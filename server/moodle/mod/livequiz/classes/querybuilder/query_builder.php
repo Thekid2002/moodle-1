@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace mod_livequiz\classes\query_builder;
+namespace mod_livequiz\classes\querybuilder;
 
 use mod_livequiz\repositories\abstract_crud_repository;
+use stdClass;
 
 /**
  * Class query_builder
@@ -50,22 +51,11 @@ class query_builder implements query_builder_interface {
      * @return select_query_builder the select query builder
      */
     public function select(array | string $columns = '*'): select_query_builder {
-        $select_query_builder = new select_query_builder($this->repository);
-        if (is_array($columns)) {
-            $select_query_builder->select = $columns;
-        } else {
-            $select_query_builder->select = [$columns];
-        }
-        return $select_query_builder;
+        return new select_query_builder($this->repository, $columns);
     }
 
-    /**
-     * Adds a new row to the table.
-     * @return insert_query_builder the insert query builder
-     */
-    public function add(): insert_query_builder
-    {
-        return new insert_query_builder($this->repository);
+    public function insert(stdClass $data): void {
+        $this->repository->insert($data);
     }
 
     public function to_sql(): string

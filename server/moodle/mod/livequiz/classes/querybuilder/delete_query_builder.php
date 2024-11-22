@@ -1,11 +1,11 @@
 <?php
 
-namespace mod_livequiz\classes\query_builder;
+namespace mod_livequiz\classes\querybuilder;
 
 use mod_livequiz\models\abstract_db_model;
 
 
-class delete_query_builder extends query_builder
+class delete_query_builder implements query_builder_interface
 {
     /**
      * @var array $where the where clauses to add to the query

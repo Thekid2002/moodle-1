@@ -3,9 +3,12 @@
 namespace mod_livequiz\repositories;
 
 use dml_exception;
-use mod_livequiz\classes\query_builder\query_builder;
+use mod_livequiz\classes\querybuilder\delimit_query_builder;
+use mod_livequiz\classes\querybuilder\query_builder;
+use mod_livequiz\classes\querybuilder\select_query_builder;
 use mod_livequiz\models\livequiz;
 use mod_livequiz\unitofwork\unit_of_work;
+use stdClass;
 
 class livequiz_repository extends abstract_crud_repository {
     private unit_of_work $unit_of_work;
@@ -19,7 +22,7 @@ class livequiz_repository extends abstract_crud_repository {
     /**
      * @throws \dml_exception
      */
-    function select(query_builder $query_builder): livequiz
+    function select(select_query_builder | delimit_query_builder $query_builder): livequiz
     {
         global $DB;
         $sql = $query_builder->to_sql();
@@ -59,23 +62,23 @@ class livequiz_repository extends abstract_crud_repository {
         return $livequizzes;
     }
 
-    public function insert($data): string
+    public function insert(stdClass $data): void
     {
-        return 'INSERT INTO {livequiz} (name, description, startdate, enddate, duration, lecturerid) 
+        $this->unit_of_work->queries[] = 'INSERT INTO {livequiz} (name, description, startdate, enddate, duration, lecturerid) 
                 VALUES (' . $data['name'] . ', ' . $data['description'] . ', ' . $data['startdate'] . ', '
             . $data['enddate'] . ', ' . $data['duration'] . ', ' . $data['lecturerid'] . ')';
     }
 
-    public function update($data): string
+    public function update($data): void
     {
-        return 'UPDATE {livequiz} SET name = ' . $data['name'] . ', description = ' . $data['description'] . ', startdate = '
+        $this->unit_of_work->queries[] = 'UPDATE {livequiz} SET name = ' . $data['name'] . ', description = ' . $data['description'] . ', startdate = '
             . $data['startdate'] . ', enddate = ' . $data['enddate'] . ', duration = ' . $data['duration'] . ', lecturerid = '
             . $data['lecturerid'] . ' WHERE id = ' . $data['id'];
     }
 
-    public function delete($predicate): string
+    public function delete($data): void
     {
-        return 'DELETE FROM {livequiz} WHERE ' . $predicate;
+        $this->unit_of_work->queries[] = 'DELETE FROM {livequiz} WHERE id = ' . $data['id'];
     }
 }
 

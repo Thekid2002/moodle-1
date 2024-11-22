@@ -1,8 +1,11 @@
 <?php
 
-namespace mod_livequiz\classes\query_builder;
+namespace mod_livequiz\classes\querybuilder;
 
-class select_query_builder extends query_builder
+use Exception;
+use mod_livequiz\repositories\abstract_crud_repository;
+
+class select_query_builder implements query_builder_interface
 {
     /**
      * @var array $select the columns to select in the query
@@ -15,10 +18,23 @@ class select_query_builder extends query_builder
     protected array $joins = [];
 
     /**
-     * @var array $where the where clauses to add to the query
+     * @var abstract_crud_repository $repository the repository to query
      */
-    protected array $where = [];
+    protected abstract_crud_repository $repository;
 
+    /**
+     * @param abstract_crud_repository $repository the repository to query
+     * @param array | string $select the columns to select
+     */
+    public function __construct(abstract_crud_repository $repository, array | string $select) {
+        $this->repository = $repository;
+
+        if (is_string($select)) {
+            $this->select = [$select];
+        } else {
+            $this->select = $select;
+        }
+    }
 
     /**
      * Adds a left join to the query.
@@ -46,17 +62,20 @@ class select_query_builder extends query_builder
         return $this;
     }
 
-    /**
-     * Adds a where clause to the query.
-     * @param string $column the column to filter on
-     * @param string $operator the operator to use in the filter
-     * @param mixed $value the value to filter on
-     * @return delimit_query_builder the query builder
-     */
     public function where(string $column, string $operator, mixed $value): delimit_query_builder {
-        $delimit_query_builder = new delimit_query_builder($this->repository);
+        $delimit_query_builder = new delimit_query_builder($this->repository, $this->joins, $this->select);
         return $delimit_query_builder->where($column, $operator, $value);
     }
+
+    /**
+     * Completes the query and returns the result.
+     * @return mixed the result of the query
+     */
+    public function complete(): mixed
+    {
+        return $this->repository->select($this);
+    }
+
     public function to_sql(): string
     {
         $sql = 'SELECT ' . implode(', ', $this->select) . ' FROM ' . $this->repository->tablename . ' ' . implode(' ', $this->joins);
