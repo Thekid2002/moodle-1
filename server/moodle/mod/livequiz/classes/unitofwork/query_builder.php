@@ -84,19 +84,6 @@ class query_builder {
     }
 
     /**
-     * Adds a right join to the query.
-     * @param string $table the table to join
-     * @param string $first the first column to join on
-     * @param string $operator the operator to use in the join
-     * @param string $second the second column to join on
-     * @return $this the query builder
-     */
-    public function right_join(string $table, string $first, string $operator, string $second): query_builder {
-        $this->joins[] = "RIGHT JOIN $table ON $first $operator $second";
-        return $this;
-    }
-
-    /**
      * Adds an inner join to the query.
      * @param string $table the table to join
      * @param string $first the first column to join on
@@ -104,7 +91,7 @@ class query_builder {
      * @param string $second the second column to join on
      * @return $this the query builder
      */
-    public function inner_join(string $table, string $first, string $operator, string $second): query_builder {
+    public function join(string $table, string $first, string $operator, string $second): query_builder {
         $this->joins[] = "JOIN $table ON $first $operator $second";
         return $this;
     }

@@ -24,7 +24,7 @@ class livequiz_repository extends abstract_crud_repository {
     function select(query_builder $query_builder): livequiz
     {
         global $DB;
-        $sql = $query_builder->toSql();
+        $sql = $query_builder->to_sql();
         $result = $DB->get_record_sql($sql, $query_builder->bindings);
         if(!$result) {
             throw new dml_exception('No livequiz found');
