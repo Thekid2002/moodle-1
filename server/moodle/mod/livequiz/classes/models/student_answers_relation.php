@@ -32,21 +32,36 @@ use Exception;
  */
 class student_answers_relation {
     /**
-     *  Insert student answer relation. Represents an answer given by a student in a participation.
-     *
-     * @param int $studentid
-     * @param int $answerid
-     * @param int $participationid
-     * @return void
-     * @throws dml_exception
+     * @var int|null $id
      */
-    public static function insert_student_answer_relation(int $studentid, int $answerid, int $participationid): int {
-        global $DB;
-        return $DB->insert_record('livequiz_students_answers', [
-            'student_id' => $studentid,
-            'answer_id' => $answerid,
-            'participation_id' => $participationid,
-        ]);
+    private int | null $id;
+
+    /**
+     * @var int $studentid
+     */
+    private int $studentid;
+
+    /**
+     * @var int $answerid
+     */
+    private int $answerid;
+
+    /**
+     * @var int $participationid
+     */
+    private int $participationid;
+
+    /**
+     * @param int|null $id The id of the relation
+     * @param int $student_id The id of the student
+     * @param int $answer_id The id of the answer
+     * @param int $participation_id The id of the participation
+     */
+    public function __construct(int | null $id, int $student_id, int $answer_id, int $participation_id) {
+        $this->id = $id;
+        $this->student_id = $student_id;
+        $this->answer_id = $answer_id;
+        $this->participation_id = $participation_id;
     }
 
     /**

@@ -16,24 +16,20 @@
 
 namespace mod_livequiz\unitofwork;
 
+use mod_livequiz\dbpool\db_pool;
+use mod_livequiz\query\query_builder;
 use mod_livequiz\repositories\livequiz_repository;
-use mod_livequiz\classes\querybuilder\query_builder;
 
 class unit_of_work {
     /**
      * @var query_builder
      */
-    public query_builder $livequiz;
+    public query_builder $livequizzes;
 
     /**
-     * @var int the order of the queries
+     * @var query_builder
      */
-    public int $order = 0;
-
-    /**
-     * @var array $queries the queries to execute
-     */
-    public array $queries = [];
+    public query_builder $students;
 
     /**
      * @var array $data the data to update
@@ -46,39 +42,26 @@ class unit_of_work {
     public array $data_clones = [];
 
     /**
-     * @var bool $transaction_started whether the transaction has started
+     * @var db_pool $db_pool the database pool
      */
-    private bool $transaction_started = false;
+    public db_pool $db_pool;
 
     /**
      * unit_of_work constructor.
      */
     public function __construct()
     {
-        $this->livequiz = new query_builder(new livequiz_repository($this));
+        $this->db_pool = new db_pool();
+        $this->livequizzes = new query_builder(new livequiz_repository($this));
+        $this->students = new query_builder(new student_repository($this));
     }
 
     /**
      * Commits the changes to the database.
+     * @throws \dml_exception
      */
-    public function commit(): void {
-        $queries = [];
-        if ($this->transaction_started) {
-            $queries[] = 'BEGIN;';
-        }
-        foreach ($this->data_clones as $clone) {
-            difference($clone, $this->data);
-        }
-        if ($this->transaction_started) {
-            $queries[] = 'COMMIT;';
-        }
-        global $DB;
-        $DB->execute(implode(' ', $queries));
-    }
-
-    public function rollback()
-    {
-
+    public function save_changes(): void {
+        $this->db_pool->commit();
     }
 
     /**

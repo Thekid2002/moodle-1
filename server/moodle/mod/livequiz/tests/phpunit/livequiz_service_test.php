@@ -26,13 +26,13 @@
 namespace mod_livequiz;
 
 use dml_exception;
+use mod_livequiz\unitofwork\unit_of_work;
 use mod_livequiz\models\livequiz;
 use mod_livequiz\models\student_answers_relation;
 use mod_livequiz\services\livequiz_services;
 use mod_livequiz\models\question;
 use mod_livequiz\models\answer;
 use mod_livequiz\models\participation;
-use mod_livequiz\unitofwork\unit_of_work;
 use PhpXmlRpc\Exception;
 
 /**
@@ -50,11 +50,9 @@ final class livequiz_service_test extends \advanced_testcase {
         $livequiz = new livequiz(null, 'Test LiveQuiz', 1, 'This is a test livequiz.', 1,
             time(), time()
         );
-        $unit_of_work->livequiz->ixnsert($livequiz);
-        global $DB;
-        $livequizid = $DB->insert_record('livequiz', $livequiz->get_data());
-
-        return livequiz::get_livequiz_from_id($livequizid);
+        $unit_of_work->livequiz->insert($livequiz);
+        $unit_of_work->save_changes();
+        return $unit_of_work->livequiz->select()->where('name', '=', 'Test LiveQuiz')->complete();
     }
 
     /**

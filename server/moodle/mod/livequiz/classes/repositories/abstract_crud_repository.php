@@ -16,11 +16,11 @@
 
 namespace mod_livequiz\repositories;
 
-use mod_livequiz\classes\querybuilder\delimit_query_builder;
-use mod_livequiz\classes\querybuilder\query_builder;
-use mod_livequiz\classes\querybuilder\select_query_builder;
+use mod_livequiz\query\delete_query_builder;
+use mod_livequiz\query\delimit_query_builder;
+use mod_livequiz\query\select_query_builder;
 use mod_livequiz\models\abstract_db_model;
-use stdClass;
+use mod_livequiz\unitofwork\unit_of_work;
 
 /**
  * Class abstract_crud_repository
@@ -30,9 +30,15 @@ abstract class abstract_crud_repository {
      * @var string $tablename The name of the table in the database.
      */
     public string $tablename;
+
+    /**
+     * @var unit_of_work $unit_of_work The unit of work to use for the repository.
+     */
+    public unit_of_work $unit_of_work;
+
     public abstract function select(select_query_builder | delimit_query_builder $query_builder): abstract_db_model;
-    public abstract function select_all(query_builder $query_builder): array;
-    public abstract function insert(stdClass $data): void;
-    public abstract function update($data): void;
-    public abstract function delete($predicate): void;
+    public abstract function select_all(select_query_builder | delimit_query_builder $query_builder): array;
+    public abstract function insert(abstract_db_model $data): void;
+    public abstract function update(abstract_db_model $data): void;
+    public abstract function delete(delete_query_builder $delete_query_builder): void;
 }

@@ -1,14 +1,28 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_livequiz\repositories;
 
 use dml_exception;
-use mod_livequiz\classes\querybuilder\delimit_query_builder;
-use mod_livequiz\classes\querybuilder\query_builder;
-use mod_livequiz\classes\querybuilder\select_query_builder;
-use mod_livequiz\models\livequiz;
+use mod_livequiz\query\delete_query_builder;
+use mod_livequiz\query\delimit_query_builder;
+use mod_livequiz\query\select_query_builder;
 use mod_livequiz\unitofwork\unit_of_work;
-use stdClass;
+use mod_livequiz\models\abstract_db_model;
+use mod_livequiz\models\livequiz;
 
 class livequiz_repository extends abstract_crud_repository {
     private unit_of_work $unit_of_work;
@@ -40,7 +54,7 @@ class livequiz_repository extends abstract_crud_repository {
         return $livequiz;
     }
 
-    function select_all(query_builder $query_builder): array
+    function select_all(select_query_builder | delimit_query_builder $query_builder): array
     {
         global $DB;
         $sql = $query_builder->toSql();
@@ -62,23 +76,38 @@ class livequiz_repository extends abstract_crud_repository {
         return $livequizzes;
     }
 
-    public function insert(stdClass $data): void
+    /**
+     * @param livequiz $entity the entity to insert
+     * @return void
+     */
+    public function insert(abstract_db_model $entity): void
     {
-        $this->unit_of_work->queries[] = 'INSERT INTO {livequiz} (name, description, startdate, enddate, duration, lecturerid) 
-                VALUES (' . $data['name'] . ', ' . $data['description'] . ', ' . $data['startdate'] . ', '
-            . $data['enddate'] . ', ' . $data['duration'] . ', ' . $data['lecturerid'] . ')';
+        $query = "INSERT INTO {$this->tablename} (name, course, intro, introformat, timecreated, timemodified)
+                    VALUES ('{$entity->name}', '{$entity->get_course()}', '{$entity->intro}', '{$entity->introformat}',
+                            '{$entity->get_timecreated()}', '{$entity->get_timemodified()}')";
+        $this->unit_of_work->db_pool->add_query($query);
     }
 
-    public function update($data): void
+    /**
+     * @param livequiz $entity the entity to update
+     * @return void
+     */
+    public function update(abstract_db_model $entity): void
     {
-        $this->unit_of_work->queries[] = 'UPDATE {livequiz} SET name = ' . $data['name'] . ', description = ' . $data['description'] . ', startdate = '
-            . $data['startdate'] . ', enddate = ' . $data['enddate'] . ', duration = ' . $data['duration'] . ', lecturerid = '
-            . $data['lecturerid'] . ' WHERE id = ' . $data['id'];
+        $query = "UPDATE {$this->tablename} SET name = '{$entity->name}', course = '{$entity->get_course()}',
+                 intro = '{$entity->intro}', introformat = '{$entity->introformat}', 
+                 timemodified = '{$entity->get_timemodified()}' WHERE id = {$entity->get_id()}";
+        $this->unit_of_work->db_pool->add_query($query);
     }
 
-    public function delete($data): void
+    /**
+     * @param delete_query_builder $delete_query_builder the query builder to delete the entity
+     * @return void
+     */
+    public function delete(delete_query_builder $delete_query_builder): void
     {
-        $this->unit_of_work->queries[] = 'DELETE FROM {livequiz} WHERE id = ' . $data['id'];
+        $query = $delete_query_builder->to_sql();
+        $this->unit_of_work->db_pool->add_query($query);
     }
 }
 

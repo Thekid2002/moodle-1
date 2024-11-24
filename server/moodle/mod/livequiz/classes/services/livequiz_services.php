@@ -18,17 +18,6 @@ namespace mod_livequiz\services;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/../models/livequiz.php');
-require_once(__DIR__ . '/../models/question.php');
-require_once(__DIR__ . '/../models/answer.php');
-require_once(__DIR__ . '/../models/questions_answers_relation.php');
-require_once(__DIR__ . '/../models/quiz_questions_relation.php');
-
-require_once(__DIR__ . '/../models/livequiz_questions_lecturer_relation.php');
-require_once(__DIR__ . '/../models/livequiz_quiz_lecturer_relation.php');
-
-require_once(__DIR__ . '/../models/student_quiz_relation.php');
-
 use dml_exception;
 use dml_transaction_exception;
 
