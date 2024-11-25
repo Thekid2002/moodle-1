@@ -33,7 +33,7 @@ use mod_livequiz\models\livequiz_questions_lecturer_relation;
 use mod_livequiz\models\participation;
 use mod_livequiz\models\student_quiz_relation;
 
-use mod_livequiz\models\student_answers_relation;
+use mod_livequiz\models\students_answers_relation;
 use mod_livequiz\unitofwork\unit_of_work;
 use PhpXmlRpc\Exception;
 
@@ -262,7 +262,7 @@ class livequiz_services {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
         try {
-            student_answers_relation::insert_student_answer_relation($studentid, $answerid, $participationid);
+            students_answers_relation::insert_student_answer_relation($studentid, $answerid, $participationid);
             $transaction->allow_commit();
         } catch (dml_exception $e) {
             $transaction->rollback($e);
@@ -281,7 +281,7 @@ class livequiz_services {
      */
     public function get_answers_from_student_in_participation(int $studentid, int $participationid): array {
         $answers = [];
-        $answerids = student_answers_relation::get_answersids_from_student_in_participation($studentid, $participationid);
+        $answerids = students_answers_relation::get_answersids_from_student_in_participation($studentid, $participationid);
         foreach ($answerids as $answerid) {
             $answers[] = answer::get_answer_from_id($answerid);
         }
@@ -313,7 +313,7 @@ class livequiz_services {
      * @throws dml_exception
      */
     private static function delete_answer(int $answerid): void {
-        $participationcount = student_answers_relation::get_answer_participation_count($answerid);
+        $participationcount = students_answers_relation::get_answer_participation_count($answerid);
         if ($participationcount > 0) {
             throw new dml_exception("Cannot delete answer with participations");
         }

@@ -30,7 +30,7 @@ use Exception;
  * Class student_answers_relation
  * @package mod_livequiz\student_answers_relation
  */
-class student_answers_relation {
+class students_answers_relation extends abstract_db_model {
     /**
      * @var int|null $id
      */
@@ -100,5 +100,28 @@ class student_answers_relation {
             'livequiz_students_answers',
             ['answer_id' => $answerid]
         );
+    }
+
+    /**
+     * Clone the object
+     * @return students_answers_relation
+     */
+    public function clone(): abstract_db_model
+    {
+        return new students_answers_relation($this->id, $this->student_id, $this->answer_id, $this->participation_id);
+    }
+
+    /**
+     * Get the data of the object
+     * @return array
+     */
+    public function get_data(): array
+    {
+        return [
+            'id' => $this->id,
+            'student_id' => $this->student_id,
+            'answer_id' => $this->answer_id,
+            'participation_id' => $this->participation_id
+        ];
     }
 }

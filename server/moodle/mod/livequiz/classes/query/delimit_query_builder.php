@@ -91,6 +91,16 @@ class delimit_query_builder implements query_builder_interface {
 
     public function to_sql(): string
     {
-        return '';
+        $sql = "SELECT " . implode(', ', $this->select) . " FROM {$this->repository->tablename}";
+        if (!empty($this->joins)) {
+            $sql .= ' ' . implode(' ', $this->joins);
+        }
+        if (!empty($this->where)) {
+            $sql .= ' WHERE ' . implode(' AND ', $this->where);
+        }
+        if ($this->limit > 0) {
+            $sql .= " LIMIT $this->limit";
+        }
+        return $sql;
     }
 }

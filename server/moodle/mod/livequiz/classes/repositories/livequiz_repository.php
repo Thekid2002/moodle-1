@@ -25,13 +25,15 @@ use mod_livequiz\models\abstract_db_model;
 use mod_livequiz\models\livequiz;
 
 class livequiz_repository extends abstract_crud_repository {
-    private unit_of_work $unit_of_work;
+    /**
+     * @var string $tablename The name of the table in the database.
+     */
+    public string $tablename = 'livequiz';
 
-    function __construct(unit_of_work $unit_of_work)
-    {
-        $this->unit_of_work = $unit_of_work;
-        $this->tablename = 'livequiz';
-    }
+    /**
+     * @var unit_of_work $unit_of_work The unit of work to use for the repository.
+     */
+    public unit_of_work $unit_of_work;
 
     /**
      * @throws \dml_exception
@@ -78,26 +80,24 @@ class livequiz_repository extends abstract_crud_repository {
 
     /**
      * @param livequiz $entity the entity to insert
-     * @return void
+     * @return int
+     * @throws dml_exception
      */
-    public function insert(abstract_db_model $entity): void
+    public function insert(abstract_db_model $entity): int
     {
-        $query = "INSERT INTO {$this->tablename} (name, course, intro, introformat, timecreated, timemodified)
-                    VALUES ('{$entity->name}', '{$entity->get_course()}', '{$entity->intro}', '{$entity->introformat}',
-                            '{$entity->get_timecreated()}', '{$entity->get_timemodified()}')";
-        $this->unit_of_work->db_pool->add_query($query);
+        global $DB;
+        return $DB->insert_record($this->tablename, $entity->get_data());
     }
 
     /**
      * @param livequiz $entity the entity to update
      * @return void
+     * @throws dml_exception
      */
     public function update(abstract_db_model $entity): void
     {
-        $query = "UPDATE {$this->tablename} SET name = '{$entity->name}', course = '{$entity->get_course()}',
-                 intro = '{$entity->intro}', introformat = '{$entity->introformat}', 
-                 timemodified = '{$entity->get_timemodified()}' WHERE id = {$entity->get_id()}";
-        $this->unit_of_work->db_pool->add_query($query);
+        global $DB;
+        $DB->update_record($this->tablename, $entity->get_data());
     }
 
     /**
@@ -108,6 +108,11 @@ class livequiz_repository extends abstract_crud_repository {
     {
         $query = $delete_query_builder->to_sql();
         $this->unit_of_work->db_pool->add_query($query);
+    }
+
+    public function insert_array(array $entities): void
+    {
+
     }
 }
 

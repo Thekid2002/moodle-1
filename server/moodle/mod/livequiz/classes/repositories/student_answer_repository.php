@@ -18,17 +18,26 @@ namespace mod_livequiz\repositories;
 
 use dml_exception;
 use mod_livequiz\models\abstract_db_model;
-use mod_livequiz\models\livequiz;
-use mod_livequiz\models\student_answers_relation;
+use mod_livequiz\models\students_answers_relation;
 use mod_livequiz\query\delete_query_builder;
 use mod_livequiz\query\delimit_query_builder;
 use mod_livequiz\query\select_query_builder;
+use mod_livequiz\unitofwork\unit_of_work;
 
 class student_answer_repository extends abstract_crud_repository {
 
+    /**
+     * @var string $tablename The name of the table in the database.
+     */
     public string $tablename = 'livequiz_students_answers';
 
     /**
+     * @var unit_of_work $unit_of_work The unit of work to use for the repository.
+     */
+    public unit_of_work $unit_of_work;
+
+    /**
+     * Select a student answer
      * @throws \dml_exception
      */
     public function select(delimit_query_builder|select_query_builder $query_builder): abstract_db_model
@@ -39,7 +48,7 @@ class student_answer_repository extends abstract_crud_repository {
         if(!$result) {
             throw new dml_exception('No student answer found');
         }
-        $livequiz = new student_answers_relation($result->id, $result->student_id, $result->question_id, $result->answer_id);
+        $livequiz = new students_answers_relation($result->id, $result->student_id, $result->question_id, $result->answer_id);
         if(!$livequiz) {
             throw new dml_exception('No livequiz found');
         }
@@ -49,14 +58,37 @@ class student_answer_repository extends abstract_crud_repository {
         return $livequiz;
     }
 
+    /**
+     * Select all student answers
+     * @param delimit_query_builder|select_query_builder $query_builder
+     * @throws dml_exception
+     */
     public function select_all(delimit_query_builder|select_query_builder $query_builder): array
     {
-        // TODO: Implement select_all() method.
+        global $DB;
+        $sql = $query_builder->to_sql();
+        $results = $DB->get_records_sql($sql, $query_builder->bindings);
+        $students_answers = [];
+        foreach ($results as $result) {
+            $student_answer = new students_answers_relation($result->id, $result->student_id, $result->question_id, $result->answer_id);
+            $student_answer_clone = $student_answer->clone();
+            $this->unit_of_work->data_clones[] = $student_answer_clone;
+            $this->unit_of_work->data[] = $student_answer;
+            $students_answers[] = $student_answer;
+        }
+        return $students_answers;
     }
 
-    public function insert(abstract_db_model $data): void
+    /**
+     * Insert a student answer into the database
+     * @param students_answers_relation $entity the student answer to insert
+     * @return int the id of the inserted student answer
+     * @throws dml_exception
+     */
+    public function insert(abstract_db_model $entity): int
     {
-        // TODO: Implement insert() method.
+        global $DB;
+        return $DB->insert_record($this->tablename, $entity->get_data());
     }
 
     public function update(abstract_db_model $data): void

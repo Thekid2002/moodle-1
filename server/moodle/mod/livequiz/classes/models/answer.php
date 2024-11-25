@@ -29,33 +29,35 @@ use Exception;
  * @copyright 2024 Software AAU
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class answer {
+class answer extends abstract_db_model {
     /**
-     * @var int $id
+     * @var int | null $id
      */
-    private int $id;
+    private int | null $id;
     /**
      * @var int $correct
      */
-    private int $correct;
+    public int $correct;
     /**
      * @var string $description
      */
-    private string $description;
+    public string $description;
 
     /**
      * @var string $explanation
      */
-    private string $explanation;
+    public string $explanation;
 
     /**
      * Constructor for the answer class. Returns the object.
      *
+     * @param int | null $id
      * @param int $correct // Expects 1 or 0.
      * @param string $description
      * @param string $explanation
      */
-    public function __construct(int $correct, string $description, string $explanation) {
+    public function __construct(int | null $id, int $correct, string $description, string $explanation) {
+        $this->id = $id;
         $this->correct = $correct;
         $this->description = $description;
         $this->explanation = $explanation;
@@ -96,8 +98,7 @@ class answer {
         if (!$answerdata) {
             throw new Exception("No answer found in answers table with id: " . $id);
         }
-        $answer = new answer($answerdata->correct, $answerdata->description, $answerdata->explanation);
-        $answer->set_id($answerdata->id);
+        $answer = new answer($answerdata->id, $answerdata->correct, $answerdata->description, $answerdata->explanation);
         return $answer;
     }
 
@@ -122,73 +123,10 @@ class answer {
     /**
      * Gets the ID of the answer.
      *
-     * @return int
+     * @return int | null
      */
-    public function get_id(): int {
-        return $this->id ?? 0;
-    }
-
-    /**
-     * Gets the correct status of the answer.
-     *
-     * @return int
-     */
-    public function get_correct(): int {
-        return $this->correct;
-    }
-
-    /**
-     * Gets the description of the answer.
-     *
-     * @return string
-     */
-    public function get_description(): string {
-        return $this->description;
-    }
-
-    /**
-     * Gets the explanation of the answer.
-     *
-     * @return string
-     */
-    public function get_explanation(): string {
-        return $this->explanation;
-    }
-
-    /**
-     * Sets the ID of the answer.
-     *
-     * @param int $id
-     */
-    private function set_id(int $id): void {
-        $this->id = $id;
-    }
-
-    /**
-     * Sets the correct status of the answer.
-     *
-     * @param int $correct
-     */
-    public function set_correct(int $correct): void {
-        $this->correct = $correct;
-    }
-
-    /**
-     * Sets the description of the answer.
-     *
-     * @param string $description
-     */
-    public function set_description(string $description): void {
-        $this->description = $description;
-    }
-
-    /**
-     * Sets the explanation of the answer.
-     *
-     * @param string $explanation
-     */
-    public function set_explanation(string $explanation): void {
-        $this->explanation = $explanation;
+    public function get_id(): int | null {
+        return $this->id;
     }
 
     /**
@@ -201,5 +139,30 @@ class answer {
     public static function delete_answer(int $answerid): bool {
         global $DB;
         return $DB->delete_records('livequiz_answers', ['id' => $answerid]);
+    }
+
+    /**
+     * Clones the answer object.
+     *
+     * @return answer the cloned answer object
+     */
+    public function clone(): answer
+    {
+        return new answer($this->correct, $this->description, $this->explanation);
+    }
+
+    /**
+     * Get the data of the answer object.
+     *
+     * @return array the data of the answer object
+     */
+    public function get_data(): array
+    {
+        return [
+            'id' => $this->id,
+            'correct' => $this->correct,
+            'description' => $this->description,
+            'explanation' => $this->explanation,
+        ];
     }
 }

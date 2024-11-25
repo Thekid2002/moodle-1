@@ -24,13 +24,15 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_livequiz;
-use mod_livequiz\models\student_answers_relation;
+use advanced_testcase;
+use mod_livequiz\models\students_answers_relation;
 use mod_livequiz\models\answer;
+use mod_livequiz\unitofwork\unit_of_work;
 
 /**
  * student_answers_relation
  */
-final class student_answers_relation_test extends \advanced_testcase {
+final class student_answers_relation_test extends advanced_testcase {
     /**
      * Create participation test data. Used in every test.
      * @return array
@@ -65,21 +67,32 @@ final class student_answers_relation_test extends \advanced_testcase {
         parent::setUp();
         $this->resetAfterTest(true);
     }
+
     /**
      * Test of insert_student_answer_relation
-     * @covers \mod_livequiz\models\student_answers_relation::insert_student_answer_relation
+     * @covers \mod_livequiz\models\students_answers_relation::insert_student_answer_relation
      * @return void
+     * @throws \dml_exception
      */
     public function test_insert_student_answer_relation(): void {
         $data = $this->create_test_data();
+        $unitofwork = new unit_of_work();
+        $actual = new students_answers_relation(null, $data['studentid'], $data['answerid'], $data['participationid']);
+        $unitofwork->student_answer_relations->insert($actual);
+        $unitofwork->save_changes();
 
-        // If this call returns an id, it means the data was inserted correctly.
-        $actual = student_answers_relation::insert_student_answer_relation(
-            $data['studentid'],
-            $data['answerid'],
-            $data['participationid'],
-        );
+        /**
+         * @var students_answers_relation $inserted
+         */
+        $inserted = $unitofwork->student_answer_relations->select()
+            ->where('student_id', '=', $data['studentid'])
+            ->where('answer_id', '=', $data['answerid'])
+            ->where('participation_id', '=', $data['participationid'])
+            ->complete();
 
+        $this->assertEquals($inserted->student_id, $actual->student_id, 'Student id does not match');
+        $this->assertEquals($inserted->answer_id, $actual->answer_id, 'Answer id does not match');
+        $this->assertEquals($inserted->participation_id, $actual->participation_id, 'Participation id does not match');
         $this->assertIsNumeric($actual);
         $this->assertGreaterThan(0, $actual);
     }
@@ -94,7 +107,7 @@ final class student_answers_relation_test extends \advanced_testcase {
 
         // Simulates multiple answers to a participation from a student.
         for ($i = 0; $i < 10; $i++) {
-            student_answers_relation::insert_student_answer_relation(
+            students_answers_relation::insert_student_answer_relation(
                 $studentanswerdata['studentid'],
                 $answerdata[$i]->get_id(),
                 $studentanswerdata['participationid'],
@@ -102,7 +115,7 @@ final class student_answers_relation_test extends \advanced_testcase {
         }
 
         // Get all answerids for a student in a participation.
-        $answerids = student_answers_relation::get_answersids_from_student_in_participation(
+        $answerids = students_answers_relation::get_answersids_from_student_in_participation(
             $studentanswerdata['studentid'],
             $studentanswerdata['participationid']
         );

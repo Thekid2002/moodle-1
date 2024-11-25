@@ -36,9 +36,15 @@ abstract class abstract_crud_repository {
      */
     public unit_of_work $unit_of_work;
 
+    public function __construct(unit_of_work $unit_of_work)
+    {
+        $this->unit_of_work = $unit_of_work;
+    }
+
     public abstract function select(select_query_builder | delimit_query_builder $query_builder): abstract_db_model;
     public abstract function select_all(select_query_builder | delimit_query_builder $query_builder): array;
-    public abstract function insert(abstract_db_model $data): void;
-    public abstract function update(abstract_db_model $data): void;
+    public abstract function insert(abstract_db_model $entity): int;
+    public abstract function insert_array(array $entities): void;
+    public abstract function update(abstract_db_model $entity): void;
     public abstract function delete(delete_query_builder $delete_query_builder): void;
 }

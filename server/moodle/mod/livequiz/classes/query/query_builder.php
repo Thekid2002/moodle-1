@@ -17,9 +17,7 @@
 namespace mod_livequiz\query;
 
 use mod_livequiz\models\abstract_db_model;
-use mod_livequiz\models\livequiz;
 use mod_livequiz\repositories\abstract_crud_repository;
-use stdClass;
 
 /**
  * Class query_builder
@@ -60,7 +58,7 @@ class query_builder implements query_builder_interface {
         $this->repository->delete($entity);
     }
 
-    public function insert(abstract_db_model $entitiy): void {
-        $this->repository->insert($entitiy);
+    public function insert(abstract_db_model $entitiy): int {
+        return $this->repository->insert($entitiy);
     }
 }

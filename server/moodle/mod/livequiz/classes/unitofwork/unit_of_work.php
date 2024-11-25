@@ -18,7 +18,10 @@ namespace mod_livequiz\unitofwork;
 
 use mod_livequiz\dbpool\db_pool;
 use mod_livequiz\query\query_builder;
+use mod_livequiz\repositories\answer_repository;
 use mod_livequiz\repositories\livequiz_repository;
+use mod_livequiz\repositories\question_repository;
+use mod_livequiz\repositories\student_answer_repository;
 
 class unit_of_work {
     /**
@@ -29,39 +32,27 @@ class unit_of_work {
     /**
      * @var query_builder
      */
-    public query_builder $students;
+    public query_builder $student_answer_relations;
 
     /**
-     * @var array $data the data to update
+     * @var query_builder
      */
-    public array $data = [];
+    public query_builder $answers;
 
     /**
-     * @var array $data_clones the cloned data
+     * @var query_builder
      */
-    public array $data_clones = [];
-
-    /**
-     * @var db_pool $db_pool the database pool
-     */
-    public db_pool $db_pool;
+    public query_builder $questions;
 
     /**
      * unit_of_work constructor.
      */
     public function __construct()
     {
-        $this->db_pool = new db_pool();
         $this->livequizzes = new query_builder(new livequiz_repository($this));
-        $this->students = new query_builder(new student_repository($this));
-    }
-
-    /**
-     * Commits the changes to the database.
-     * @throws \dml_exception
-     */
-    public function save_changes(): void {
-        $this->db_pool->commit();
+        $this->student_answer_relations = new query_builder(new student_answer_repository($this));
+        $this->answers = new query_builder(new answer_repository($this));
+        $this->questions = new query_builder(new question_repository($this));
     }
 
     /**
