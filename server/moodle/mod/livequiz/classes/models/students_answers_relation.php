@@ -53,15 +53,15 @@ class students_answers_relation extends abstract_db_model {
 
     /**
      * @param int|null $id The id of the relation
-     * @param int $student_id The id of the student
-     * @param int $answer_id The id of the answer
-     * @param int $participation_id The id of the participation
+     * @param int $studentid The id of the student
+     * @param int $answerid The id of the answer
+     * @param int $participationid The id of the participation
      */
-    public function __construct(int | null $id, int $student_id, int $answer_id, int $participation_id) {
+    public function __construct(int | null $id, int $studentid, int $answerid, int $participationid) {
         $this->id = $id;
-        $this->student_id = $student_id;
-        $this->answer_id = $answer_id;
-        $this->participation_id = $participation_id;
+        $this->studentid = $studentid;
+        $this->answerid = $answerid;
+        $this->participationid = $participationid;
     }
 
     /**
@@ -108,7 +108,22 @@ class students_answers_relation extends abstract_db_model {
      */
     public function clone(): abstract_db_model
     {
-        return new students_answers_relation($this->id, $this->student_id, $this->answer_id, $this->participation_id);
+        return new students_answers_relation($this->id, $this->studentid, $this->answerid, $this->participationid);
+    }
+
+    public function get_studentid()
+    {
+        return $this->studentid;
+    }
+
+    public function get_answerid()
+    {
+        return $this->answerid;
+    }
+
+    public function get_participationid()
+    {
+        return $this->participationid;
     }
 
     /**
@@ -119,9 +134,9 @@ class students_answers_relation extends abstract_db_model {
     {
         return [
             'id' => $this->id,
-            'student_id' => $this->student_id,
-            'answer_id' => $this->answer_id,
-            'participation_id' => $this->participation_id
+            'student_id' => $this->studentid,
+            'answer_id' => $this->answerid,
+            'participation_id' => $this->participationid
         ];
     }
 }

@@ -56,10 +56,13 @@ class livequiz_repository extends abstract_crud_repository {
         return $livequiz;
     }
 
+    /**
+     * @throws dml_exception
+     */
     function select_all(select_query_builder | delimit_query_builder $query_builder): array
     {
         global $DB;
-        $sql = $query_builder->toSql();
+        $sql = $query_builder->to_sql();
         $results = $DB->get_records_sql($sql, $query_builder->bindings);
         if(!$results) {
             throw new dml_exception('No livequizzes found');
@@ -67,12 +70,6 @@ class livequiz_repository extends abstract_crud_repository {
         $livequizzes = [];
         foreach($results as $result) {
             $livequiz = new livequiz($result->id, $result->name, $result->description, $result->startdate, $result->enddate, $result->duration, $result->lecturerid);
-            if(!$livequiz) {
-                throw new dml_exception('No livequiz found');
-            }
-            $livequizclone = $livequiz->clone();
-            $this->unit_of_work->data_clones[] = $livequizclone;
-            $this->unit_of_work->data[] = $livequiz;
             $livequizzes[] = $livequiz;
         }
         return $livequizzes;
@@ -110,9 +107,14 @@ class livequiz_repository extends abstract_crud_repository {
         $this->unit_of_work->db_pool->add_query($query);
     }
 
+    /**
+     * @throws \coding_exception
+     * @throws dml_exception
+     */
     public function insert_array(array $entities): void
     {
-
+        global $DB;
+        $DB->insert_records($this->tablename, $entities);
     }
 }
 

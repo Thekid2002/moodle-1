@@ -16,7 +16,6 @@
 
 namespace mod_livequiz\unitofwork;
 
-use mod_livequiz\dbpool\db_pool;
 use mod_livequiz\query\query_builder;
 use mod_livequiz\repositories\answer_repository;
 use mod_livequiz\repositories\livequiz_repository;

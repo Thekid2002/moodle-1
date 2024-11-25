@@ -16,6 +16,7 @@
 
 namespace mod_livequiz\repositories;
 
+use coding_exception;
 use dml_exception;
 use mod_livequiz\models\abstract_db_model;
 use mod_livequiz\models\students_answers_relation;
@@ -99,5 +100,18 @@ class student_answer_repository extends abstract_crud_repository {
     public function delete(delete_query_builder $delete_query_builder): void
     {
         // TODO: Implement delete() method.
+    }
+
+    /**
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function insert_array(array $entities): void
+    {
+        global $DB;
+        for ($i = 0; $i < count($entities); $i++) {
+            $entities[$i] = $entities[$i]->get_data();
+        }
+        $DB->insert_records($this->tablename, $entities);
     }
 }

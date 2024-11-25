@@ -78,21 +78,18 @@ final class student_answers_relation_test extends advanced_testcase {
         $data = $this->create_test_data();
         $unitofwork = new unit_of_work();
         $actual = new students_answers_relation(null, $data['studentid'], $data['answerid'], $data['participationid']);
-        $unitofwork->student_answer_relations->insert($actual);
-        $unitofwork->save_changes();
+        $id = $unitofwork->student_answer_relations->insert($actual);
 
         /**
          * @var students_answers_relation $inserted
          */
         $inserted = $unitofwork->student_answer_relations->select()
-            ->where('student_id', '=', $data['studentid'])
-            ->where('answer_id', '=', $data['answerid'])
-            ->where('participation_id', '=', $data['participationid'])
+            ->where('id', '=', $id)
             ->complete();
 
-        $this->assertEquals($inserted->student_id, $actual->student_id, 'Student id does not match');
-        $this->assertEquals($inserted->answer_id, $actual->answer_id, 'Answer id does not match');
-        $this->assertEquals($inserted->participation_id, $actual->participation_id, 'Participation id does not match');
+        $this->assertEquals($inserted->get_studentid(), $actual->get_studentid(), 'Student id does not match');
+        $this->assertEquals($inserted->get_answerid(), $actual->get_answerid(), 'Answer id does not match');
+        $this->assertEquals($inserted->get_participationid(), $actual->get_participationid(), 'Participation id does not match');
         $this->assertIsNumeric($actual);
         $this->assertGreaterThan(0, $actual);
     }
