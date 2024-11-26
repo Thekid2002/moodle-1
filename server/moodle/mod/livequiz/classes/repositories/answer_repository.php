@@ -16,7 +16,7 @@ class answer_repository extends abstract_crud_repository {
     /**
      * @var string $tablename The name of the table in the database.
      */
-    public static string $tablename = 'mdl_livequiz_answers';
+    public static string $tablename = 'livequiz_answers';
 
     /**
      * Select an answer from the database

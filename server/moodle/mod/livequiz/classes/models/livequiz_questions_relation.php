@@ -60,52 +60,6 @@ class livequiz_questions_relation extends abstract_db_model {
     }
 
     /**
-     *  Append a question object to a quiz, given its id.
-     *
-     * @param int $questionid
-     * @param int $quizid
-     * @return void
-     * @throws dml_exception
-     */
-    public static function insert_quiz_question_relation(int $questionid, int $quizid): void {
-        global $DB;
-        $DB->insert_record('livequiz_quiz_questions', ['quiz_id' => $quizid, 'question_id' => $questionid]);
-    }
-
-    /**
-     * Get all questions from a quiz, given its id.
-     *
-     * @param $quizid int
-     * @return array // An array of question objects.
-     * @throws dml_exception
-     */
-    public static function get_questions_from_quiz_id(int $quizid): array {
-        global $DB;
-
-        $questionrecords = $DB->get_records('livequiz_quiz_questions', ['quiz_id' => $quizid], '', 'question_id');
-        $questionids = array_column($questionrecords, 'question_id');
-        $questions = [];
-
-        foreach ($questionids as $questionid) {
-            $questions[] = question::get_question_from_id($questionid);
-        }
-
-        return $questions;
-    }
-
-    /**
-     * Takes the ID of a question and deletes all relations between the question and quizzes.
-     *
-     * @param int $questionid
-     * @return bool
-     * @throws dml_exception
-     */
-    public static function delete_question_quiz_relation(int $questionid): bool {
-        global $DB;
-        return $DB->delete_records('livequiz_quiz_questions', ['question_id' => $questionid]);
-    }
-
-    /**
      * Clones the livequiz_questions_relation object.
      * @return livequiz_questions_relation the cloned livequiz_questions_relation object
      */

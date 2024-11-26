@@ -16,7 +16,7 @@ class question_lecturer_repository extends abstract_crud_repository
     /**
      * @var string $tablename The name of the table in the database.
      */
-    public static string $tablename = 'mdl_livequiz_questions_lecturer';
+    public static string $tablename = 'livequiz_questions_lecturer';
 
     /**
      * Select a question lecturer relation

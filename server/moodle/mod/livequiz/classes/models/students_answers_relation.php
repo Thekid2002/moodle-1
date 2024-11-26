@@ -64,44 +64,6 @@ class students_answers_relation extends abstract_db_model {
     }
 
     /**
-     * Get all answers for a student in a given participation
-     *
-     * @param int $studentid
-     * @param int $participationid
-     * @return array An array of answer id's
-     * @throws dml_exception
-     */
-    public static function get_answersids_from_student_in_participation(int $studentid, int $participationid): array {
-        global $DB;
-
-        $answerrecords = $DB->get_records(
-            'livequiz_students_answers',
-            ['student_id' => $studentid, 'participation_id' => $participationid],
-            '',
-            'answer_id'
-        );
-        $answerids = array_column($answerrecords, 'answer_id');
-        return $answerids;
-    }
-
-    /**
-     * Check if an answer has any participations.
-     * Returns amount of participations.
-     *
-     * @param int $answerid
-     * @return int
-     * @throws dml_exception
-     */
-    public static function get_answer_participation_count(int $answerid): int {
-        global $DB;
-
-        return $DB->count_records(
-            'livequiz_students_answers',
-            ['answer_id' => $answerid]
-        );
-    }
-
-    /**
      * Clone the object
      * @return students_answers_relation
      */
@@ -110,16 +72,25 @@ class students_answers_relation extends abstract_db_model {
         return new students_answers_relation($this->id, $this->studentid, $this->answerid, $this->participationid);
     }
 
+    /**
+     * @return int|null
+     */
     public function get_studentid()
     {
         return $this->studentid;
     }
 
+    /**
+     * @return int $answerid
+     */
     public function get_answerid()
     {
         return $this->answerid;
     }
 
+    /**
+     * @return int $participationid
+     */
     public function get_participationid()
     {
         return $this->participationid;

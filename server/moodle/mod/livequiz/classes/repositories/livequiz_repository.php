@@ -20,7 +20,6 @@ use dml_exception;
 use mod_livequiz\query\delete_query_builder;
 use mod_livequiz\query\delimit_query_builder;
 use mod_livequiz\query\select_query_builder;
-use mod_livequiz\unitofwork\unit_of_work;
 use mod_livequiz\models\abstract_db_model;
 use mod_livequiz\models\livequiz;
 
@@ -28,7 +27,7 @@ class livequiz_repository extends abstract_crud_repository {
     /**
      * @var string $tablename The name of the table in the database.
      */
-    public static string $tablename = 'mdl_livequiz';
+    public static string $tablename = 'livequiz';
 
     /**
      * @throws \dml_exception
@@ -41,8 +40,8 @@ class livequiz_repository extends abstract_crud_repository {
         if(!$result) {
             throw new dml_exception('No livequiz found');
         }
-        return new livequiz($result->id, $result->name, $result->description, $result->startdate, $result->enddate,
-            $result->duration, $result->lecturerid);
+        return new livequiz($result->id, $result->name, $result->course, $result->intro,
+            $result->introformat, $result->timecreated, $result->timemodified);
     }
 
     /**
@@ -58,7 +57,8 @@ class livequiz_repository extends abstract_crud_repository {
         }
         $livequizzes = [];
         foreach($results as $result) {
-            $livequiz = new livequiz($result->id, $result->name, $result->description, $result->startdate, $result->enddate, $result->duration, $result->lecturerid);
+            $livequiz = new livequiz($result->id, $result->name, $result->course, $result->intro,
+                $result->introformat, $result->timecreated, $result->timemodified);
             $livequizzes[] = $livequiz;
         }
         return $livequizzes;

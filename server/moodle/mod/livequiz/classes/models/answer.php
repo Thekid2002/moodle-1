@@ -16,9 +16,6 @@
 
 namespace mod_livequiz\models;
 
-use dml_exception;
-use Exception;
-
 /**
  * Class answer.
  *
@@ -66,61 +63,6 @@ class answer extends abstract_db_model {
     }
 
     /**
-     * Given an answer object, this method will insert the answer to the database
-     *
-     * @param answer $answer
-     * @return int
-     * @throws dml_exception
-     */
-    public static function insert_answer(answer $answer): int {
-        global $DB;
-
-        $answerdata = [
-            'correct' => $answer->correct,
-            'description' => $answer->description,
-            'explanation' => $answer->explanation,
-        ];
-
-        return $DB->insert_record('livequiz_answers', $answerdata);
-    }
-
-    /**
-     * Get an answer, given its id.
-     *
-     * @param int $id
-     * @return mixed
-     * @throws dml_exception
-     * @throws Exception
-     */
-    public static function get_answer_from_id(int $id): answer {
-        global $DB;
-        $answerdata = $DB->get_record('livequiz_answers', ['id' => $id]);
-        if (!$answerdata) {
-            throw new Exception("No answer found in answers table with id: " . $id);
-        }
-        $answer = new answer($answerdata->id, $answerdata->correct, $answerdata->description, $answerdata->explanation);
-        return $answer;
-    }
-
-    /**
-     * Update an answer, given its id.
-     *
-     * @throws dml_exception
-     */
-    public function update_answer(): void {
-        global $DB;
-
-        $answerdata = [
-            'id' => $this->id,
-            'correct' => $this->correct,
-            'description' => $this->description,
-            'explanation' => $this->explanation,
-        ];
-
-        $DB->update_record('livequiz_answers', $answerdata);
-    }
-
-    /**
      * Gets the ID of the answer.
      *
      * @return int | null
@@ -128,19 +70,6 @@ class answer extends abstract_db_model {
     public function get_id(): int | null {
         return $this->id;
     }
-
-    /**
-     * Deletes an answer from the database.
-     *
-     * @param int $answerid
-     * @return bool
-     * @throws dml_exception
-     */
-    public static function delete_answer(int $answerid): bool {
-        global $DB;
-        return $DB->delete_records('livequiz_answers', ['id' => $answerid]);
-    }
-
     /**
      * Clones the answer object.
      *

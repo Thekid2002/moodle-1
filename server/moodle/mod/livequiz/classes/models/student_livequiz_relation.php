@@ -88,7 +88,7 @@ class student_livequiz_relation extends abstract_db_model {
             );
         $participations = [];
         foreach ($participationrecords as $participation) {
-            $participations[] = new participation($participation->student_id, $participation->livequiz_id);
+            $participations[] = new participation($participation->id, $participation->student_id, $participation->livequiz_id);
         }
         return $participations;
     }

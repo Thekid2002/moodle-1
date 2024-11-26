@@ -32,6 +32,11 @@ class select_query_builder implements query_builder_interface
     protected array $joins = [];
 
     /**
+     * @var array $from the from clauses to add to the query
+     */
+    protected array $from = [];
+
+    /**
      * @var abstract_crud_repository $repository the repository to query
      */
     protected abstract_crud_repository $repository;
@@ -59,7 +64,8 @@ class select_query_builder implements query_builder_interface
      * @return $this the query builder
      */
     public function left_join(string $table, string $first, string $operator, string $second): select_query_builder {
-        $this->joins[] = "LEFT JOIN $table ON $first $operator $second";
+        $this->joins[] = "LEFT JOIN {{$table}} ON $first $operator $second";
+        $this->from[] = "{" . $table . "} AS {$table}";
         return $this;
     }
 
@@ -72,12 +78,13 @@ class select_query_builder implements query_builder_interface
      * @return $this the query builder
      */
     public function join(string $table, string $first, string $operator, string $second): select_query_builder {
-        $this->joins[] = "JOIN $table ON $first $operator $second";
+        $this->joins[] = "JOIN {" . $table . "} ON $first $operator $second";
+        $this->from[] = "{" .$table . "} AS {$table}";
         return $this;
     }
 
     public function where(string $column, string $operator, mixed $value): delimit_query_builder {
-        $delimit_query_builder = new delimit_query_builder($this->repository, $this->joins, $this->select);
+        $delimit_query_builder = new delimit_query_builder($this->repository, $this->joins, $this->select, $this->from);
         return $delimit_query_builder->where($column, $operator, $value);
     }
 
@@ -101,7 +108,8 @@ class select_query_builder implements query_builder_interface
 
     public function to_sql(): string
     {
-        $sql = 'SELECT ' . implode(', ', $this->select) . ' FROM ' . $this->repository->tablename . ' '
+        $fromsql = count($this->from) ? ', {' . implode('}, {', $this->from) . '}' : '';
+        $sql = 'SELECT ' . implode(', ', $this->select) . ' FROM ' . $this->repository::$tablename . $fromsql . ' '
             . implode(' ', $this->joins);
         return $sql;
     }

@@ -47,14 +47,20 @@ class delimit_query_builder implements query_builder_interface {
     public array $bindings = [];
 
     /**
+     * @var array $from the from clauses to add to the query
+     */
+    public array $from = [];
+
+    /**
      * @var abstract_crud_repository $repository the repository to query
      */
     protected abstract_crud_repository $repository;
 
-    public function __construct(abstract_crud_repository $repository, array $joins, array $select) {
+    public function __construct(abstract_crud_repository $repository, array $joins, array $select, array $from) {
         $this->repository = $repository;
         $this->joins = $joins;
         $this->select = $select;
+        $this->from = $from;
     }
 
     /**
@@ -101,7 +107,8 @@ class delimit_query_builder implements query_builder_interface {
 
     public function to_sql(): string
     {
-        $sql = "SELECT " . implode(', ', $this->select) . " FROM {$this->repository->tablename}";
+        $fromsql = count($this->from) ? ', {' . implode('}, {', $this->from) . '}' : '';
+        $sql = 'SELECT ' . implode(', ', $this->select) . ' FROM {' . $this->repository::$tablename . '}' . $fromsql . ' ';
         if (!empty($this->joins)) {
             $sql .= ' ' . implode(' ', $this->joins);
         }

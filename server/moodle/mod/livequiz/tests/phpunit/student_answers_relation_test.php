@@ -37,12 +37,8 @@ final class student_answers_relation_test extends advanced_testcase {
      * Create participation test data. Used in every test.
      * @return array
      */
-    protected function create_test_data(): array {
-        return  $studentanswertestdata = [
-            'studentid' => 1,
-            'participationid' => 1,
-            'answerid' => 1,
-        ];
+    protected function create_test_data(): students_answers_relation {
+        return new students_answers_relation(null, 1, 1, 1);
     }
 
     /**
@@ -50,12 +46,14 @@ final class student_answers_relation_test extends advanced_testcase {
      * @return answer[]
      */
     protected function create_answer_data(): array {
-        global $DB;
+        $unitofwork = new unit_of_work();
         $answers = [];
         for ($i = 0; $i < 10; $i++) {
-            $answer = new answer(1, 'Answer Option' . $i, 'Answer Explenation' . $i);
-            $answerid = answer::insert_answer($answer);
-            $answers[] = answer::get_answer_from_id($answerid); // This ensures id's are set since set_id() is private.
+            $answer = new answer(null, 1, 'Answer Option' . $i, 'Answer Explenation' . $i);
+            $answerid = $unitofwork->answers->insert($answer);
+            $answers[] = $unitofwork->answers->select()
+                ->where('id', '=', $answerid)
+                ->first();
         }
         return $answers;
     }
@@ -83,7 +81,8 @@ final class student_answers_relation_test extends advanced_testcase {
         /**
          * @var students_answers_relation $inserted
          */
-        $inserted = $unitofwork->student_answer_relations->select()
+        $inserted = $unitofwork->student_answer_relations
+            ->select()
             ->where('id', '=', $id)
             ->first();
 
@@ -120,10 +119,12 @@ final class student_answers_relation_test extends advanced_testcase {
             ->where('student_id', '=', $studentanswerdata['studentid'])
             ->where('participation_id', '=', $studentanswerdata['participationid'])
             ->all();
-        $answerids = students_answers_relation::get_answersids_from_student_in_participation(
-            $studentanswerdata['studentid'],
-            $studentanswerdata['participationid']
-        );
+
+        $answerids = $unitofwork->student_answer_relations->select("answer_id")
+            ->where('student_id', '=', $studentanswerdata['studentid'])
+            ->where('participation_id', '=', $studentanswerdata['participationid'])
+            ->all();
+
         // For each answer ensure we are fetching the same id's we inserted.
         for ($i = 0; $i < 10; $i++) {
             $this->assertEquals($answerids[$i], $answerdata[$i]->get_id());
