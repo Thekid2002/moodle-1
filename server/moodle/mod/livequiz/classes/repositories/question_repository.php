@@ -12,7 +12,10 @@ use mod_livequiz\query\select_query_builder;
 
 class question_repository extends abstract_crud_repository
 {
-    public string $tablename = 'livequiz_questions';
+    /**
+     * @var string $tablename The name of the table in the database.
+     */
+    public static string $tablename = 'livequiz_questions';
 
     /**
      * Select a question from the database
@@ -62,7 +65,7 @@ class question_repository extends abstract_crud_repository
     public function insert(abstract_db_model $entity): int
     {
         global $DB;
-        return $DB->insert_record($this->tablename, $entity->get_data());
+        return $DB->insert_record(self::$tablename, $entity->get_data());
     }
 
     public function update(abstract_db_model $entity): void
@@ -85,6 +88,6 @@ class question_repository extends abstract_crud_repository
         for ($i = 0; $i < count($entities); $i++) {
             $entities[$i] = $entities[$i]->get_data();
         }
-        $DB->insert_records($this->tablename, $entities);
+        $DB->insert_records(self::$tablename, $entities);
     }
 }

@@ -13,6 +13,11 @@ use mod_livequiz\query\select_query_builder;
 class livequiz_lecturer_repository extends abstract_crud_repository
 {
     /**
+     * @var string $tablename The name of the table in the database.
+     */
+    public static string $tablename = 'livequiz_lecturers';
+
+    /**
      * Select a quiz lecturer relation
      * @param delimit_query_builder|select_query_builder $query_builder
      * @return livequiz_lecturer_relation
@@ -57,7 +62,7 @@ class livequiz_lecturer_repository extends abstract_crud_repository
     public function insert(abstract_db_model $entity): int
     {
         global $DB;
-        return $DB->insert_record($this->tablename, $entity->get_data());
+        return $DB->insert_record(self::$tablename, $entity->get_data());
     }
 
     /**
@@ -73,7 +78,7 @@ class livequiz_lecturer_repository extends abstract_crud_repository
         for ($i = 0; $i < count($entities); $i++) {
             $entities[$i] = $entities[$i]->get_data();
         }
-        $DB->insert_records($this->tablename, $entities);
+        $DB->insert_records(self::$tablename, $entities);
     }
 
     public function update(abstract_db_model $entity): void

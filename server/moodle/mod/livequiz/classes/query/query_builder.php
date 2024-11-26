@@ -16,6 +16,7 @@
 
 namespace mod_livequiz\query;
 
+use core_reportbuilder\external\conditions\delete;
 use mod_livequiz\models\abstract_db_model;
 use mod_livequiz\repositories\abstract_crud_repository;
 
@@ -54,8 +55,12 @@ class query_builder implements query_builder_interface {
         return new select_query_builder($this->repository, $columns);
     }
 
-    public function delete(abstract_db_model $entity): void {
-        $this->repository->delete($entity);
+    public function update(abstract_db_model $entity): void {
+        $this->repository->update($entity);
+    }
+
+    public function delete(): delete_query_builder {
+        return new delete_query_builder($this->repository);
     }
 
     public function insert(abstract_db_model $entitiy): int {

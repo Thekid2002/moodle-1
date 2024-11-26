@@ -25,7 +25,38 @@ use dml_transaction_exception;
  * @copyright 2024 Software AAU
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class student_livequiz_relation {
+class student_livequiz_relation extends abstract_db_model {
+
+    /**
+     * @var int|null $id
+     */
+    public int | null $id;
+
+    /**
+     * @var int $livequizid
+     */
+    public int $livequizid;
+
+    /**
+     * @var int $studentid
+     */
+    public int $studentid;
+
+    /**
+     * Constructor for the student_livequiz_relation class. Returns the object.
+     *
+     * @param int|null $id
+     * @param int $livequizid
+     * @param int $studentid
+     */
+    public function __construct(int | null $id, int $livequizid, int $studentid)
+    {
+        $this->id = $id;
+        $this->livequizid = $livequizid;
+        $this->studentid = $studentid;
+    }
+
+
     /**
      * Append a student-quiz relation given both their ids.
      *
@@ -39,10 +70,12 @@ class student_livequiz_relation {
         global $DB;
         return $DB->insert_record('livequiz_quiz_student', ['livequiz_id' => $quizid, 'student_id' => $studentid], true);
     }
+
     /**
      * Get all participation the student has made for a quiz
      * @param int $quizid
-     * @return void
+     * @param int $studentid
+     * @return array
      */
     public static function get_all_student_participation_for_quiz(int $quizid, int $studentid): array {
         global $DB;
@@ -58,5 +91,19 @@ class student_livequiz_relation {
             $participations[] = new participation($participation->student_id, $participation->livequiz_id);
         }
         return $participations;
+    }
+
+    public function clone(): abstract_db_model
+    {
+        return new student_livequiz_relation($this->id, $this->livequizid, $this->studentid);
+    }
+
+    public function get_data(): array
+    {
+        return [
+            'id' => $this->id,
+            'livequizid' => $this->livequizid,
+            'studentid' => $this->studentid
+        ];
     }
 }

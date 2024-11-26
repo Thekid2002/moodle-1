@@ -30,7 +30,35 @@ use dml_exception;
  * Class quiz_questions_relation
  * @package mod_livequiz\quiz_questions_relation
  */
-class livequiz_questions_relation {
+class livequiz_questions_relation extends abstract_db_model {
+    /**
+     * @var int | null $id
+     */
+    private int | null $id;
+
+    /**
+     * @var int $quizid
+     */
+    private int $quizid;
+
+    /**
+     * @var int $questionid
+     */
+    private int $questionid;
+
+    /**
+     * livequiz_questions_relation constructor.
+     * @param int $id
+     * @param int $quizid
+     * @param int $questionid
+     */
+    public function __construct(int | null $id, int $quizid, int $questionid)
+    {
+        $this->id = $id;
+        $this->quizid = $quizid;
+        $this->questionid = $questionid;
+    }
+
     /**
      *  Append a question object to a quiz, given its id.
      *
@@ -75,5 +103,23 @@ class livequiz_questions_relation {
     public static function delete_question_quiz_relation(int $questionid): bool {
         global $DB;
         return $DB->delete_records('livequiz_quiz_questions', ['question_id' => $questionid]);
+    }
+
+    /**
+     * Clones the livequiz_questions_relation object.
+     * @return livequiz_questions_relation the cloned livequiz_questions_relation object
+     */
+    public function clone(): livequiz_questions_relation
+    {
+        return new livequiz_questions_relation($this->id, $this->quizid, $this->questionid);
+    }
+
+    public function get_data(): array
+    {
+        return [
+            'id' => $this->id,
+            'quiz_id' => $this->quizid,
+            'question_id' => $this->questionid
+        ];
     }
 }

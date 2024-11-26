@@ -28,12 +28,7 @@ class livequiz_repository extends abstract_crud_repository {
     /**
      * @var string $tablename The name of the table in the database.
      */
-    public string $tablename = 'livequiz';
-
-    /**
-     * @var unit_of_work $unit_of_work The unit of work to use for the repository.
-     */
-    public unit_of_work $unit_of_work;
+    public static string $tablename = 'mdl_livequiz';
 
     /**
      * @throws \dml_exception
@@ -77,7 +72,7 @@ class livequiz_repository extends abstract_crud_repository {
     public function insert(abstract_db_model $entity): int
     {
         global $DB;
-        return $DB->insert_record($this->tablename, $entity->get_data());
+        return $DB->insert_record(self::$tablename, $entity->get_data());
     }
 
     /**
@@ -88,7 +83,7 @@ class livequiz_repository extends abstract_crud_repository {
     public function update(abstract_db_model $entity): void
     {
         global $DB;
-        $DB->update_record($this->tablename, $entity->get_data());
+        $DB->update_record(self::$tablename, $entity->get_data());
     }
 
     /**
@@ -108,7 +103,7 @@ class livequiz_repository extends abstract_crud_repository {
     public function insert_array(array $entities): void
     {
         global $DB;
-        $DB->insert_records($this->tablename, $entities);
+        $DB->insert_records(self::$tablename, $entities);
     }
 }
 

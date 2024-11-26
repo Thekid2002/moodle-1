@@ -29,17 +29,7 @@ abstract class abstract_crud_repository {
     /**
      * @var string $tablename The name of the table in the database.
      */
-    public string $tablename;
-
-    /**
-     * @var unit_of_work $unit_of_work The unit of work to use for the repository.
-     */
-    public unit_of_work $unit_of_work;
-
-    public function __construct(unit_of_work $unit_of_work)
-    {
-        $this->unit_of_work = $unit_of_work;
-    }
+    public static string $tablename;
 
     public abstract function select(select_query_builder | delimit_query_builder $query_builder): abstract_db_model;
     public abstract function select_all(select_query_builder | delimit_query_builder $query_builder): array;

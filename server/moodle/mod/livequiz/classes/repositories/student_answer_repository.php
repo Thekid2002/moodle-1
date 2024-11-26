@@ -30,12 +30,7 @@ class student_answer_repository extends abstract_crud_repository {
     /**
      * @var string $tablename The name of the table in the database.
      */
-    public string $tablename = 'livequiz_students_answers';
-
-    /**
-     * @var unit_of_work $unit_of_work The unit of work to use for the repository.
-     */
-    public unit_of_work $unit_of_work;
+    public static string $tablename = 'livequiz_students_answers';
 
     /**
      * Select a student answer
@@ -49,8 +44,8 @@ class student_answer_repository extends abstract_crud_repository {
         if(!$result) {
             throw new dml_exception('No student answer found');
         }
-        $livequiz = new students_answers_relation($result->id, $result->student_id, $result->question_id, $result->answer_id);
-        return $livequiz;
+        return new students_answers_relation($result->id, $result->student_id, $result->question_id,
+            $result->answer_id);
     }
 
     /**
@@ -67,9 +62,6 @@ class student_answer_repository extends abstract_crud_repository {
         $students_answers = [];
         foreach ($results as $result) {
             $student_answer = new students_answers_relation($result->id, $result->student_id, $result->question_id, $result->answer_id);
-            $student_answer_clone = $student_answer->clone();
-            $this->unit_of_work->data_clones[] = $student_answer_clone;
-            $this->unit_of_work->data[] = $student_answer;
             $students_answers[] = $student_answer;
         }
         return $students_answers;
@@ -84,7 +76,7 @@ class student_answer_repository extends abstract_crud_repository {
     public function insert(abstract_db_model $entity): int
     {
         global $DB;
-        return $DB->insert_record($this->tablename, $entity->get_data());
+        return $DB->insert_record(self::$tablename, $entity->get_data());
     }
 
     public function update(abstract_db_model $data): void
@@ -107,6 +99,6 @@ class student_answer_repository extends abstract_crud_repository {
         for ($i = 0; $i < count($entities); $i++) {
             $entities[$i] = $entities[$i]->get_data();
         }
-        $DB->insert_records($this->tablename, $entities);
+        $DB->insert_records(self::$tablename, $entities);
     }
 }

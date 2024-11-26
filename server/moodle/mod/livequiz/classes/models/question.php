@@ -32,7 +32,7 @@ use stdClass;
  */
 class question extends abstract_db_model {
     /**
-     * @var int $id The id of the question.
+     * @var int | null $id The id of the question.
      */
     private int | null $id;
 

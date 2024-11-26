@@ -13,9 +13,10 @@ use mod_livequiz\unitofwork\unit_of_work;
 
 class answer_repository extends abstract_crud_repository {
 
-    public string $tablename = 'livequiz_answers';
-
-    public unit_of_work $unit_of_work;
+    /**
+     * @var string $tablename The name of the table in the database.
+     */
+    public static string $tablename = 'mdl_livequiz_answers';
 
     /**
      * Select an answer from the database
@@ -63,7 +64,7 @@ class answer_repository extends abstract_crud_repository {
     public function insert(abstract_db_model $entity): int
     {
         global $DB;
-        return $DB->insert_record($this->tablename, $entity->get_data());
+        return $DB->insert_record(self::$tablename, $entity->get_data());
     }
 
     /**
@@ -83,7 +84,7 @@ class answer_repository extends abstract_crud_repository {
 
             $entities[$i] = $entities[$i]->get_data();
         }
-        $DB->insert_records($this->tablename, $entities);
+        $DB->insert_records(self::$tablename, $entities);
     }
 
     public function update(\mod_livequiz\models\abstract_db_model $entity): void

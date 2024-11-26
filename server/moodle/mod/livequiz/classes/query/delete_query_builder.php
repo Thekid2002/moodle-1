@@ -31,6 +31,10 @@ class delete_query_builder implements query_builder_interface
      */
     protected abstract_crud_repository $repository;
 
+    public function __construct(abstract_crud_repository $repository) {
+        $this->repository = $repository;
+    }
+
     /**
      * Turns the delete query into a string.
      * @return string the delete query as a string

@@ -78,11 +78,11 @@ class livequiz_services {
         /** @var livequiz $livequiz */
         $livequiz = $unitofwork->livequizzes
             ->select()
-            ->left_join('quiz_questions_relation', 'quiz_id', $id, 'question_id')
-            ->left_join('questions', 'id', 'question_id', 'id')
-            ->left_join('questions_answers_relation', 'question_id', 'id', 'answer_id')
-            ->left_join('answers', 'id', 'answer_id', 'id')
-            ->where('id', $id, '=')
+            ->left_join('mdl_livequiz_quiz_questions', 'quiz_id', "=", 'question_id')
+            ->left_join('mdl_livequiz_questions', 'question_id', "=", 'id')
+            ->left_join('mdl_livequiz_questions_answers', 'question_id', "=", 'question_id')
+            ->left_join('mdl_livequiz_answers', 'answer_id', "=", 'id')
+            ->where('id','=', $id)
             ->first();
 
         echo print_object($livequiz);
@@ -102,22 +102,15 @@ class livequiz_services {
         /** @var livequiz $livequiz */
         $unitofwork = new unit_of_work();
         $unitofwork->begin_transaction();
-        $livequiz = $unitofwork->livequiz
+        $livequiz = $unitofwork->livequizzes
             ->select()
             ->where('id', $updatedlivequiz->get_id(), '=')
-            ->complete();
+            ->first();
         $livequiz->name = $updatedlivequiz->name;
         $livequiz->intro = $updatedlivequiz->intro;
         $livequiz->introformat = $updatedlivequiz->introformat;
         $livequiz->set_timemodified();
-
-        try {
-            $unitofwork->commit();
-        } catch (dml_exception $e) {
-            $unitofwork->rollback($e);
-            echo $e->getMessage();
-        }
-
+        $unitofwork->livequizzes->update($livequiz);
         return $livequiz;
     }
 
