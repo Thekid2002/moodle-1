@@ -98,7 +98,31 @@ sniffit() {
 }
 
 fixit() {
+  if ! command -v phpcbf &> /dev/null; then
+    echo "phpcbf could not be found"
+    exit 1
+  fi
+
+  echo "Running phpcbf on $MOODLE_ROOT/mod/livequiz/"
   phpcbf "$MOODLE_ROOT/mod/livequiz/"
+  if [ $? -eq 0 ]; then
+    echo "phpcbf ran successfully"
+  else
+    echo "phpcbf encountered an error"
+  fi
+
+  # Fix deprecated warning by declaring the property
+  SNIFF_FILE="$MOODLE_ROOT/vendor/moodlehq/moodle-cs/moodle/Sniffs/ControlStructures/ControlSignatureSniff.php"
+  if [ -f "$SNIFF_FILE" ]; then
+    if ! grep -q 'public $supportedTokenizers' "$SNIFF_FILE"; then
+      sed -i "/class ControlSignatureSniff implements Sniff/a\ \ \ \ public \$supportedTokenizers = ['PHP', 'JS'];" "$SNIFF_FILE"
+      echo "Added property declaration to ControlSignatureSniff.php"
+    else
+      echo "Property declaration already exists in ControlSignatureSniff.php"
+    fi
+  else
+    echo "ControlSignatureSniff.php not found"
+  fi
 }
 
 beit() {

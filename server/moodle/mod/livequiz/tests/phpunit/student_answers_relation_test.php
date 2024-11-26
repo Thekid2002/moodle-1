@@ -85,7 +85,7 @@ final class student_answers_relation_test extends advanced_testcase {
          */
         $inserted = $unitofwork->student_answer_relations->select()
             ->where('id', '=', $id)
-            ->complete();
+            ->first();
 
         $this->assertEquals($inserted->get_studentid(), $actual->get_studentid(), 'Student id does not match');
         $this->assertEquals($inserted->get_answerid(), $actual->get_answerid(), 'Answer id does not match');
@@ -95,23 +95,31 @@ final class student_answers_relation_test extends advanced_testcase {
     }
     /**
      * Test of get_answersids_from_student_in_participation
-     * @covers \mod_livequiz\models\student_quiz_relation::get_answersids_from_student_in_participation
+     * @covers \mod_livequiz\models\student_livequiz_relation::get_answersids_from_student_in_participation
      * @return void
      */
     public function test_get_answersids_from_student_in_participation(): void {
+        $unitofwork = new unit_of_work();
         $studentanswerdata = $this->create_test_data();
         $answerdata = $this->create_answer_data();
 
         // Simulates multiple answers to a participation from a student.
         for ($i = 0; $i < 10; $i++) {
-            students_answers_relation::insert_student_answer_relation(
+            $studentanswerrelation = new students_answers_relation(
+                null,
                 $studentanswerdata['studentid'],
                 $answerdata[$i]->get_id(),
-                $studentanswerdata['participationid'],
+                $studentanswerdata['participationid']
             );
+            $unitofwork->student_answer_relations->insert($studentanswerrelation);
         }
 
-        // Get all answerids for a student in a participation.
+        // Get all answerids for a student in a participation
+
+        $studentanswerdata = $unitofwork->student_answer_relations->select()
+            ->where('student_id', '=', $studentanswerdata['studentid'])
+            ->where('participation_id', '=', $studentanswerdata['participationid'])
+            ->all();
         $answerids = students_answers_relation::get_answersids_from_student_in_participation(
             $studentanswerdata['studentid'],
             $studentanswerdata['participationid']

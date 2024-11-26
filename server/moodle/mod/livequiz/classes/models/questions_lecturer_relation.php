@@ -20,13 +20,40 @@ use dml_exception;
 use dml_transaction_exception;
 
 /**
- * 'Static' class, do not instantiate.
  * Class for relation between question and lecturer
  * @package   mod_livequiz
  * @copyright 2024 Software AAU
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class livequiz_questions_lecturer_relation {
+class questions_lecturer_relation extends abstract_db_model {
+    /**
+     * @var int|null $id
+     */
+    private int | null $id;
+
+    /**
+     * @var int $question_id
+     */
+    private int $question_id;
+
+    /**
+     * @var int $lecturer_id
+     */
+    private int $lecturer_id;
+
+    /**
+     * livequiz_questions_lecturer_relation constructor.
+     * @param int|null $id
+     * @param int $question_id
+     * @param int $lecturer_id
+     */
+    public function __construct(int | null $id, int $question_id, int $lecturer_id)
+    {
+        $this->id = $id;
+        $this->question_id = $question_id;
+        $this->lecturer_id = $lecturer_id;
+    }
+
     /**
      *
      * Append a relation between af lecturer_id and the question_id. For easy access
@@ -74,30 +101,18 @@ class livequiz_questions_lecturer_relation {
         global $DB;
         return (array) $DB->get_record('livequiz_questions_lecturer', ['question_id' => $questionid]);
     }
-    /**
-     * returns array with data from livequiz_questions_lecturer based on the relation id
-     * @param int $id
-     * @return array
-     * @throws dml_exception
-     */
-    public static function get_lecturer_questions_relation_by_id(int $id): array {
-        global $DB;
-        return $DB->get_record('livequiz_questions_lecturer', ['id' => $id]);
+
+    public function clone(): abstract_db_model
+    {
+        return new questions_lecturer_relation($this->id, $this->question_id, $this->lecturer_id);
     }
 
-    /**
-     *
-     * Deletes  lecturer_questions_relation by the relation id
-     *
-     *
-     * @param int $id
-     * @return void
-     * @throws dml_exception
-     * @throws dml_transaction_exception
-     *
-     */
-    public static function delete_lecturer_questions_relation_by_id(int $id): void {
-        global $DB;
-        $DB->delete_records('livequiz_questions_lecturer', ['id' => $id]);
+    public function get_data(): array
+    {
+        return [
+            'id' => $this->id,
+            'question_id' => $this->question_id,
+            'lecturer_id' => $this->lecturer_id,
+        ];
     }
 }

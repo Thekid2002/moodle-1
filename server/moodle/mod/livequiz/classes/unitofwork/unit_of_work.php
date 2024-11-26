@@ -18,6 +18,8 @@ namespace mod_livequiz\unitofwork;
 
 use mod_livequiz\query\query_builder;
 use mod_livequiz\repositories\answer_repository;
+use mod_livequiz\repositories\livequiz_lecturer_repository;
+use mod_livequiz\repositories\livequiz_question_repository;
 use mod_livequiz\repositories\livequiz_repository;
 use mod_livequiz\repositories\question_repository;
 use mod_livequiz\repositories\student_answer_repository;
@@ -44,6 +46,18 @@ class unit_of_work {
     public query_builder $questions;
 
     /**
+     * @var query_builder
+     */
+    public query_builder $livequiz_question_relations;
+
+    /**
+     * @var query_builder
+     */
+    public query_builder $livequiz_lecturer_relations;
+
+
+
+    /**
      * unit_of_work constructor.
      */
     public function __construct()
@@ -52,6 +66,8 @@ class unit_of_work {
         $this->student_answer_relations = new query_builder(new student_answer_repository($this));
         $this->answers = new query_builder(new answer_repository($this));
         $this->questions = new query_builder(new question_repository($this));
+        $this->livequiz_question_relations = new query_builder(new livequiz_question_repository($this));
+        $this->livequiz_lecturer_relations = new query_builder(new livequiz_lecturer_repository($this));
     }
 
     /**

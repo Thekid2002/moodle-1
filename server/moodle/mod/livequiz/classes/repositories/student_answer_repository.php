@@ -50,19 +50,14 @@ class student_answer_repository extends abstract_crud_repository {
             throw new dml_exception('No student answer found');
         }
         $livequiz = new students_answers_relation($result->id, $result->student_id, $result->question_id, $result->answer_id);
-        if(!$livequiz) {
-            throw new dml_exception('No livequiz found');
-        }
-        $livequizclone = $livequiz->clone();
-        $this->unit_of_work->data_clones[] = $livequizclone;
-        $this->unit_of_work->data[] = $livequiz;
         return $livequiz;
     }
 
     /**
      * Select all student answers
-     * @param delimit_query_builder|select_query_builder $query_builder
-     * @throws dml_exception
+     * @param delimit_query_builder|select_query_builder $query_builder the query builder to use
+     * @return array an array of student answers
+     * @throws dml_exception if no student answers are found
      */
     public function select_all(delimit_query_builder|select_query_builder $query_builder): array
     {

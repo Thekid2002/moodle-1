@@ -15,6 +15,9 @@ class question_repository extends abstract_crud_repository
     public string $tablename = 'livequiz_questions';
 
     /**
+     * Select a question from the database
+     * @param delimit_query_builder|select_query_builder $query_builder the query to select the question
+     * @return question the question selected
      * @throws dml_exception
      */
     public function select(delimit_query_builder|select_query_builder $query_builder): question
@@ -30,6 +33,12 @@ class question_repository extends abstract_crud_repository
             $result->explanation);
     }
 
+    /**
+     * Select all questions from the database
+     * @param delimit_query_builder|select_query_builder $query_builder
+     * @return array
+     * @throws dml_exception
+     */
     public function select_all(delimit_query_builder|select_query_builder $query_builder): array
     {
         global $DB;

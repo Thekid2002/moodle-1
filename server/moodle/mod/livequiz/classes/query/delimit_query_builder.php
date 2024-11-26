@@ -81,13 +81,23 @@ class delimit_query_builder implements query_builder_interface {
     }
 
     /**
-     * Executes the query and returns the first result or throws an exception if no results are found.
-     * @throws \dml_exception if no results are found
+     * Executes the query and returns the first result.
+     * @return abstract_db_model the first result of the query
      */
-    public function complete(): abstract_db_model
+    public function first(): abstract_db_model
     {
         return $this->repository->select($this);
     }
+
+    /**
+     * Executes the query and returns all results.
+     * @return array the results of the query
+     */
+    public function all(): array
+    {
+        return $this->repository->select_all($this);
+    }
+
 
     public function to_sql(): string
     {

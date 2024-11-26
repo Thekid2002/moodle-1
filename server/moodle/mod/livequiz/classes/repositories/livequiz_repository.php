@@ -46,14 +46,8 @@ class livequiz_repository extends abstract_crud_repository {
         if(!$result) {
             throw new dml_exception('No livequiz found');
         }
-        $livequiz = new livequiz($result->id, $result->name, $result->description, $result->startdate, $result->enddate, $result->duration, $result->lecturerid);
-        if(!$livequiz) {
-            throw new dml_exception('No livequiz found');
-        }
-        $livequizclone = $livequiz->clone();
-        $this->unit_of_work->data_clones[] = $livequizclone;
-        $this->unit_of_work->data[] = $livequiz;
-        return $livequiz;
+        return new livequiz($result->id, $result->name, $result->description, $result->startdate, $result->enddate,
+            $result->duration, $result->lecturerid);
     }
 
     /**
@@ -104,7 +98,7 @@ class livequiz_repository extends abstract_crud_repository {
     public function delete(delete_query_builder $delete_query_builder): void
     {
         $query = $delete_query_builder->to_sql();
-        $this->unit_of_work->db_pool->add_query($query);
+
     }
 
     /**

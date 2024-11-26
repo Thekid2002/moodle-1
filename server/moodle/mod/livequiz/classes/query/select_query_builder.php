@@ -16,6 +16,7 @@
 
 namespace mod_livequiz\query;
 
+use mod_livequiz\models\abstract_db_model;
 use mod_livequiz\repositories\abstract_crud_repository;
 
 class select_query_builder implements query_builder_interface
@@ -81,12 +82,21 @@ class select_query_builder implements query_builder_interface
     }
 
     /**
-     * Completes the query and returns the result.
-     * @return mixed the result of the query
+     * Completes the query and returns the first result.
+     * @return abstract_db_model the first result of the query
      */
-    public function complete(): mixed
+    public function first(): abstract_db_model
     {
         return $this->repository->select($this);
+    }
+
+    /**
+     * Completes the query and returns all results.
+     * @return array the result of the query
+     */
+    public function all(): array
+    {
+        return $this->repository->select_all($this);
     }
 
     public function to_sql(): string

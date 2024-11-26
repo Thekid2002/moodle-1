@@ -51,9 +51,12 @@ final class livequiz_service_test extends \advanced_testcase {
             time(), time()
         );
         echo "\n";
-        $unit_of_work->livequizzes->insert($livequiz);
-        $unit_of_work->save_changes();
-        return $unit_of_work->livequizzes->select()->where('name', '=', 'Test LiveQuiz')->complete();
+        $id = $unit_of_work->livequizzes->insert($livequiz);
+        /** @var livequiz $livequiz */
+        $livequiz = $unit_of_work->livequizzes->select()
+            ->where("id", "=", $id)
+            ->first();
+        return $livequiz;
     }
 
     /**
@@ -90,33 +93,36 @@ final class livequiz_service_test extends \advanced_testcase {
         ];
 
         $answersquestion1 = [
-            new answer(1, '350-550 kg', "A male Polar Bear weighs this much."),
-            new answer(1, '150-350 kg', "A female Polar Bear weighs this much."),
+            new answer(null, 1, '350-550 kg', "A male Polar Bear weighs this much."),
+            new answer(null, 1, '150-350 kg', "A female Polar Bear weighs this much."),
             new answer(
-                0,
+                null, 0,
                 '600-800 kg',
                 "Neither af female nor a male Polar Bear weighs this much."
             ),
         ];
 
         $answersquestion2 = [
-            new answer(1, 'N', "The letter N"),
-            new answer(0, 'S', "The letter S"),
-            new answer(0, 'W', "The letter W"),
+            new answer(null, 1, 'N', "The letter N"),
+            new answer(null, 0, 'S', "The letter S"),
+            new answer(null, 0, 'W', "The letter W"),
         ];
 
         $answersquestion3 = [
             new answer(
+                null,
                 1,
                 'The compressed air ensures that the handbrake spring is not permanently on',
                 "This correct as the air releases the spring"
             ),
             new answer(
+                null,
                 0,
                 'The compressed air makes funny sounds.',
                 "It does not make it sound funny"
             ),
             new answer(
+                null,
                 1,
                 'The compressed air ensures that gear changes happen, when switching from 1-6 gears to 7-12 gears',
                 "This is correct as the air is needed for the force that is needed"
@@ -134,13 +140,10 @@ final class livequiz_service_test extends \advanced_testcase {
 
     /**
      * Create participation test data.
-     * @return array
+     * @return participation
      */
-    protected function create_participation_data_for_test(): array {
-        return  $participationdata = [
-            'studentid' => 2,
-            'quizid' => 1,
-        ];
+    protected function create_participation_data_for_test(): participation {
+        return new participation(null,  2, 1);
     }
 
     /**
@@ -205,7 +208,7 @@ final class livequiz_service_test extends \advanced_testcase {
         $correct = 1;
         $description = 'This is a test answer.';
         $explanation = "I don't know.";
-        $answer = new answer($correct, $description, $explanation);
+        $answer = new answer(null, $correct, $description, $explanation);
         $question->add_answer($answer);
 
         self::assertInstanceOf(answer::class, $answer);
@@ -249,8 +252,8 @@ final class livequiz_service_test extends \advanced_testcase {
         $questions = $livequizresult->get_questions();
         // Assert properties of the LiveQuiz remain the same.
         self::assertEquals($livequiz->get_id(), $livequizresult->get_id());
-        self::assertEqualsIgnoringCase($livequiz->get_name(), $livequizresult->get_name());
-        self::assertEqualsIgnoringCase($livequiz->get_intro(), $livequizresult->get_intro());
+        self::assertEqualsIgnoringCase($livequiz->name, $livequizresult->name);
+        self::assertEqualsIgnoringCase($livequiz->intro, $livequizresult->intro);
         self::assertEquals($livequiz->get_timecreated(), $livequizresult->get_timecreated());
         self::assertEquals($livequiz->get_timemodified(), $livequizresult->get_timemodified());
 

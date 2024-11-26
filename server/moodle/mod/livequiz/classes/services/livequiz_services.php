@@ -16,8 +16,6 @@
 
 namespace mod_livequiz\services;
 
-defined('MOODLE_INTERNAL') || die();
-
 use dml_exception;
 use dml_transaction_exception;
 
@@ -25,13 +23,13 @@ use mod_livequiz\models\answer;
 use mod_livequiz\models\livequiz;
 use mod_livequiz\models\question;
 use mod_livequiz\models\questions_answers_relation;
-use mod_livequiz\models\quiz_questions_relation;
+use mod_livequiz\models\liveqquiz_questions_relation;
 
-use mod_livequiz\models\livequiz_quiz_lecturer_relation;
-use mod_livequiz\models\livequiz_questions_lecturer_relation;
+use mod_livequiz\models\_quiz_lecturer_relation;
+use mod_livequiz\models\_questions_lecturer_relation;
 
 use mod_livequiz\models\participation;
-use mod_livequiz\models\student_quiz_relation;
+use mod_livequiz\models\student_livequiz_relation;
 
 use mod_livequiz\models\students_answers_relation;
 use mod_livequiz\unitofwork\unit_of_work;
@@ -76,15 +74,16 @@ class livequiz_services {
      * @throws dml_exception
      */
     public function get_livequiz_instance(int $id): livequiz {
-        $unitOfWork = new unit_of_work();
-        $livequiz = $unitOfWork->livequiz
+        $unitofwork = new unit_of_work();
+        /** @var livequiz $livequiz */
+        $livequiz = $unitofwork->livequizzes
             ->select()
             ->left_join('quiz_questions_relation', 'quiz_id', $id, 'question_id')
             ->left_join('questions', 'id', 'question_id', 'id')
             ->left_join('questions_answers_relation', 'question_id', 'id', 'answer_id')
             ->left_join('answers', 'id', 'answer_id', 'id')
             ->where('id', $id, '=')
-            ->complete();
+            ->first();
 
         echo print_object($livequiz);
         return $livequiz;
@@ -101,9 +100,9 @@ class livequiz_services {
      */
     public function submit_quiz(livequiz $updatedlivequiz, int $lecturerid): livequiz {
         /** @var livequiz $livequiz */
-        $unitOfWork = new unit_of_work();
-        $unitOfWork->begin_transaction();
-        $livequiz = $unitOfWork->livequiz
+        $unitofwork = new unit_of_work();
+        $unitofwork->begin_transaction();
+        $livequiz = $unitofwork->livequiz
             ->select()
             ->where('id', $updatedlivequiz->get_id(), '=')
             ->complete();
@@ -113,9 +112,9 @@ class livequiz_services {
         $livequiz->set_timemodified();
 
         try {
-            $unitOfWork->commit();
+            $unitofwork->commit();
         } catch (dml_exception $e) {
-            $unitOfWork->rollback($e);
+            $unitofwork->rollback($e);
             echo $e->getMessage();
         }
 
@@ -149,8 +148,8 @@ class livequiz_services {
                 // Insert new question if ID is 0 (new question).
                 $questionid = question::insert_question($newquestion);
 
-                quiz_questions_relation::insert_quiz_question_relation($questionid, $quizid);
-                livequiz_questions_lecturer_relation::append_lecturer_questions_relation($questionid, $lecturerid);
+                liveqquiz_questions_relation::insert_quiz_question_relation($questionid, $quizid);
+                _questions_lecturer_relation::append_lecturer_questions_relation($questionid, $lecturerid);
                 $updatedquestionids[] = $questionid;
             } else if (isset($existingquestionmap[$questionid])) {
                 // Update existing question if found in the map.
@@ -217,7 +216,7 @@ class livequiz_services {
      * @throws dml_exception
      */
     private function get_questions_with_answers(int $quizid): array {
-        $questions = quiz_questions_relation::get_questions_from_quiz_id($quizid);
+        $questions = liveqquiz_questions_relation::get_questions_from_quiz_id($quizid);
 
         foreach ($questions as $question) {
             $answers = questions_answers_relation::get_answers_from_question($question->get_id());
@@ -239,7 +238,7 @@ class livequiz_services {
         $transaction = $DB->start_delegated_transaction();
         $participation = new participation($studentid, $quizid);
         try {
-            $participation->set_id(student_quiz_relation::insert_student_quiz_relation($quizid, $studentid));
+            $participation->set_id(student_livequiz_relation::insert_student_quiz_relation($quizid, $studentid));
             $transaction->allow_commit();
         } catch (dml_exception $e) {
             $transaction->rollback($e);
@@ -293,7 +292,7 @@ class livequiz_services {
      * @return array
      */
     public function get_livequiz_quiz_lecturer(int $quizid): array {
-        $lecturer = livequiz_quiz_lecturer_relation::get_lecturer_quiz_relation_by_quiz_id($quizid);
+        $lecturer = _quiz_lecturer_relation::get_lecturer_quiz_relation_by_quiz_id($quizid);
 
         return $lecturer;
     }
@@ -303,7 +302,7 @@ class livequiz_services {
      * @return array
      */
     public function get_livequiz_question_lecturer(int $questionid): array {
-        $lecturer = livequiz_questions_lecturer_relation::get_lecturer_questions_relation_by_questions_id($questionid);
+        $lecturer = _questions_lecturer_relation::get_lecturer_questions_relation_by_questions_id($questionid);
         return $lecturer;
     }
     /**
@@ -334,7 +333,7 @@ class livequiz_services {
             self::delete_answer($currentanswerid);
         }
 
-        quiz_questions_relation::delete_question_quiz_relation($questionid);
+        liveqquiz_questions_relation::delete_question_quiz_relation($questionid);
         question::delete_question($questionid);
     }
 }

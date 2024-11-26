@@ -30,7 +30,7 @@ use dml_exception;
  * Class quiz_questions_relation
  * @package mod_livequiz\quiz_questions_relation
  */
-class quiz_questions_relation {
+class livequiz_questions_relation {
     /**
      *  Append a question object to a quiz, given its id.
      *

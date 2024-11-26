@@ -24,7 +24,6 @@
 namespace mod_livequiz\models;
 
 use dml_exception;
-use Exception;
 
 /**
  * Class student_answers_relation

@@ -28,12 +28,12 @@ use stdClass;
  * @copyright 2024 Software AAU
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class participation {
+class participation extends abstract_db_model {
     /**
      * Participation id
-     * @var int $id
+     * @var int | null $id
      */
-    private int $id;
+    private int | null $id;
     /**
      * @var int $studentid
      */
@@ -46,10 +46,11 @@ class participation {
     /**
      * Participation constructor.
      *
-     * @param $studentid
-     * @param $livequizid
+     * @param int $studentid
+     * @param int $livequizid
      */
-    public function __construct($studentid, $livequizid) {
+    public function __construct(int | null $id, int $studentid, int $livequizid) {
+        $this->id = $id;
         $this->studentid = $studentid;
         $this->livequizid = $livequizid;
     }
@@ -123,5 +124,19 @@ class participation {
      */
     public function set_livequizid(int $livequizid): void {
         $this->livequizid = $livequizid;
+    }
+
+    public function clone(): abstract_db_model
+    {
+        return new participation($this->id, $this->studentid, $this->livequizid);
+    }
+
+    public function get_data(): array
+    {
+        return [
+            'id' => $this->id,
+            'studentid' => $this->studentid,
+            'livequizid' => $this->livequizid
+        ];
     }
 }
