@@ -1,4 +1,11 @@
-MOODLE FOR WINDOWS 
+apt-get update && apt-get install dos2unix
+dos2unix /scripts/run_tests.sh /scripts/php_unit.sh
+
+
+
+
+
+MOODLE FOR WINDOWS
 ==================
 
 This package contains everything you need to run Moodle on a windows machine.
@@ -35,9 +42,9 @@ located in server/install/install.php. Then it starts Apache and MariaDB.
 
 2. XAMPP (https://www.apachefriends.org/en/xampp.html)
 
-You can use xampp executable files directly if you like.  They are 
-located in the "server" directory. 
- 
+You can use xampp executable files directly if you like.  They are
+located in the "server" directory.
+
 
 3. Moodle (https://moodle.org/)
 
@@ -46,7 +53,7 @@ All moodle files are located in server/moodle/
 
 4. Performance Settings (https://docs.moodle.org/en/Performance)
 
-In order to optimize your Moodle Environment, see the Moodle Performance docs. 
+In order to optimize your Moodle Environment, see the Moodle Performance docs.
 
 
 
@@ -54,9 +61,9 @@ In order to optimize your Moodle Environment, see the Moodle Performance docs.
 TROUBLESHOOTING
 ===============
 
-If 'Start Moodle.exe' fails to work and the windows closes automatically, 
+If 'Start Moodle.exe' fails to work and the windows closes automatically,
 you may have something blocking port 80 on your machine.  Make sure there
-are no other web servers running on this port, Skype is configured not 
+are no other web servers running on this port, Skype is configured not
 to use port 80, firewalls are open etc
 
 Another reason could be because PHP in this package needs the Microsoft
@@ -66,8 +73,8 @@ https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist
 For more information, visit:
 https://docs.moodle.org/en/Complete_install_packages_for_Windows
 
-Do not rename the 'server/' folder. Otherwise 'Start Moodle.exe' and 
-'Stop Moodle.exe' will stop working and you'll have to use xampp 
+Do not rename the 'server/' folder. Otherwise 'Start Moodle.exe' and
+'Stop Moodle.exe' will stop working and you'll have to use xampp
 executable files. (xammp-control.exe)
 
 
