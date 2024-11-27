@@ -56,11 +56,17 @@ class delimit_query_builder implements query_builder_interface {
      */
     protected abstract_crud_repository $repository;
 
-    public function __construct(abstract_crud_repository $repository, array $joins, array $select, array $from) {
+    /**
+     * @var string | null the alias for the table
+     */
+    protected string | null $as;
+
+    public function __construct(abstract_crud_repository $repository, array $joins, array $select, array $from, string | null $as = null) {
         $this->repository = $repository;
         $this->joins = $joins;
         $this->select = $select;
         $this->from = $from;
+        $this->as = $as;
     }
 
     /**
@@ -107,8 +113,9 @@ class delimit_query_builder implements query_builder_interface {
 
     public function to_sql(): string
     {
-        $fromsql = count($this->from) ? ', {' . implode('}, {', $this->from) . '}' : '';
-        $sql = 'SELECT ' . implode(', ', $this->select) . ' FROM {' . $this->repository::$tablename . '}' . $fromsql . ' ';
+        $fromsql = count($this->from) ? ', ' . implode(', ', $this->from) : '';
+        $as = $this->as ? ' AS ' . $this->as : '';
+        $sql = 'SELECT ' . implode(', ', $this->select) . ' FROM {' . $this->repository::$tablename . '}' . $as . $fromsql . ' ';
         if (!empty($this->joins)) {
             $sql .= ' ' . implode(' ', $this->joins);
         }

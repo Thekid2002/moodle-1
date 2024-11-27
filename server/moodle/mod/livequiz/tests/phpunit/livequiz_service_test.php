@@ -245,8 +245,11 @@ final class livequiz_service_test extends \advanced_testcase {
      * @throws dml_exception|Exception
      */
     public function test_create_livequiz(): void {
+        $unitofwork = new unit_of_work();
         $lecturerid = "2";
+        $unitofwork->begin_transaction();
         $livequiz = $this->create_livequiz_with_questions_and_answers_for_test();
+        $unitofwork->livequizzes->insert($livequiz);
         $service = livequiz_services::get_singleton_service_instance();
         $livequizresult = $service->submit_quiz($livequiz, $lecturerid);
         $questions = $livequizresult->get_questions();

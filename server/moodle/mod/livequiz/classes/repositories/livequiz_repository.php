@@ -16,6 +16,7 @@
 
 namespace mod_livequiz\repositories;
 
+use coding_exception;
 use dml_exception;
 use mod_livequiz\query\delete_query_builder;
 use mod_livequiz\query\delimit_query_builder;
@@ -36,7 +37,12 @@ class livequiz_repository extends abstract_crud_repository {
     {
         global $DB;
         $sql = $query_builder->to_sql();
+        echo $sql;
+        echo "\n";
+        echo print_object($query_builder->bindings);
+        echo "\n";
         $result = $DB->get_record_sql($sql, $query_builder->bindings);
+        echo print_object($result);
         if(!$result) {
             throw new dml_exception('No livequiz found');
         }
@@ -66,7 +72,7 @@ class livequiz_repository extends abstract_crud_repository {
 
     /**
      * @param livequiz $entity the entity to insert
-     * @return int
+     * @return int the id of the inserted entity
      * @throws dml_exception
      */
     public function insert(abstract_db_model $entity): int
@@ -97,8 +103,26 @@ class livequiz_repository extends abstract_crud_repository {
     }
 
     /**
-     * @throws \coding_exception
+     * Insert an array of livequizzes into the database and return the ids
+     * @param array<livequiz> $entities the list of livequizzes to insert
+     * @return array<int> the ids of the inserted livequizzes
      * @throws dml_exception
+     */
+    public function insert_array_get_ids(array $entities): array
+    {
+        global $DB;
+        $ids = [];
+        foreach ($entities as $entity) {
+            $ids[] = $DB->insert_record(self::$tablename, $entity->get_data());
+        }
+        return $ids;
+    }
+
+    /**
+     * Insert an array of livequizzes into the database
+     * @param array<livequiz> $entities the list of livequizzes to insert
+     * @throws dml_exception
+     * @throws coding_exception
      */
     public function insert_array(array $entities): void
     {

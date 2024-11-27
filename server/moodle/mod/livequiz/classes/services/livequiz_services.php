@@ -77,12 +77,12 @@ class livequiz_services {
         $unitofwork = new unit_of_work();
         /** @var livequiz $livequiz */
         $livequiz = $unitofwork->livequizzes
-            ->select()
-            ->left_join('phpu_livequiz_quiz_questions', 'lq.id', '=', 'lqqq.quiz_id')
-            ->left_join('phpu_livequiz_questions', 'lqqq.question_id', '=', 'lqq.id')
-            ->left_join('phpu_livequiz_questions_answers', 'lqq.id', '=', 'lqqa.question_id')
-            ->left_join('phpu_livequiz_answers', 'lqqa.answer_id', '=', 'lqa.id')
-            ->where('lq.id', '=', 360000)
+            ->select('livequiz.*', 'livequiz')
+            ->left_join('livequiz_quiz_questions', 'livequiz.id', '=', 'lqq.quiz_id', 'lqq')
+            ->left_join('livequiz_questions', 'lqq.question_id', '=', 'lq.id', 'lq')
+            ->left_join('livequiz_questions_answers', 'lq.id', '=', 'lqqa.question_id', 'lqqa')
+            ->left_join('livequiz_answers', 'lqqa.answer_id', '=', 'lqa.id', 'lqa')
+            ->where('livequiz.id', '=', $id)
             ->first();
 
         echo print_object($livequiz);
@@ -101,16 +101,17 @@ class livequiz_services {
     public function submit_quiz(livequiz $updatedlivequiz, int $lecturerid): livequiz {
         /** @var livequiz $livequiz */
         $unitofwork = new unit_of_work();
-        $unitofwork->begin_transaction();
         $livequiz = $unitofwork->livequizzes
             ->select()
-            ->where('id', $updatedlivequiz->get_id(), '=')
+            ->where('id', '=', $updatedlivequiz->get_id())
             ->first();
         $livequiz->name = $updatedlivequiz->name;
         $livequiz->intro = $updatedlivequiz->intro;
         $livequiz->introformat = $updatedlivequiz->introformat;
         $livequiz->set_timemodified();
+        $unitofwork->begin_transaction();
         $unitofwork->livequizzes->update($livequiz);
+        $unitofwork->commit();
         return $livequiz;
     }
 

@@ -16,6 +16,8 @@
 
 namespace mod_livequiz\unitofwork;
 
+use dml_transaction_exception;
+use Exception;
 use mod_livequiz\query\query_builder;
 use mod_livequiz\repositories\answer_repository;
 use mod_livequiz\repositories\livequiz_lecturer_repository;
@@ -23,6 +25,7 @@ use mod_livequiz\repositories\livequiz_question_repository;
 use mod_livequiz\repositories\livequiz_repository;
 use mod_livequiz\repositories\question_repository;
 use mod_livequiz\repositories\student_answer_repository;
+use moodle_transaction;
 
 class unit_of_work {
     /**
@@ -55,6 +58,11 @@ class unit_of_work {
      */
     public query_builder $livequiz_lecturer_relations;
 
+    /**
+     * @var moodle_transaction transaction
+     */
+    private moodle_transaction $transaction;
+
 
 
     /**
@@ -71,10 +79,26 @@ class unit_of_work {
     }
 
     /**
-     * Begins a transaction.
+     * Begin a transaction
+     * @return void
      */
-    public function begin_transaction(): void {
-        $this->transaction_started = true;
+    public function begin_transaction(): void
+    {
+        global $DB;
+        $this->transaction = $DB->start_delegated_transaction();
     }
 
+
+    /**
+     * Commit a transaction
+     * @throws dml_transaction_exception
+     */
+    public function commit(): void {
+        try {
+            $this->transaction->allow_commit();
+        } catch (Exception $e) {
+            $this->transaction->rollback($e);
+            throw $e;
+        }
+    }
 }

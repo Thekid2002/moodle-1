@@ -27,6 +27,11 @@ class select_query_builder implements query_builder_interface
     protected array $select = [];
 
     /**
+     * @var string | null the alias for the table
+     */
+    protected string | null $as;
+
+    /**
      * @var array $joins the joins to add to the query
      */
     protected array $joins = [];
@@ -45,8 +50,9 @@ class select_query_builder implements query_builder_interface
      * @param abstract_crud_repository $repository the repository to query
      * @param array | string $select the columns to select
      */
-    public function __construct(abstract_crud_repository $repository, array | string $select) {
+    public function __construct(abstract_crud_repository $repository, array | string $select, string | null $as = null) {
         $this->repository = $repository;
+        $this->as = $as;
 
         if (is_string($select)) {
             $this->select = [$select];
@@ -63,9 +69,9 @@ class select_query_builder implements query_builder_interface
      * @param string $second the second column to join on
      * @return $this the query builder
      */
-    public function left_join(string $table, string $first, string $operator, string $second): select_query_builder {
-        $this->joins[] = "LEFT JOIN {{$table}} ON $first $operator $second";
-        $this->from[] = "{" . $table . "} AS {$table}";
+    public function left_join(string $table, string $first, string $operator, string $second, string $as): select_query_builder {
+        $this->joins[] = "LEFT JOIN {{$table}} AS {$as}\n ON $first $operator $second\n";
+        $this->select[] = "{$as}.*";
         return $this;
     }
 
@@ -84,7 +90,7 @@ class select_query_builder implements query_builder_interface
     }
 
     public function where(string $column, string $operator, mixed $value): delimit_query_builder {
-        $delimit_query_builder = new delimit_query_builder($this->repository, $this->joins, $this->select, $this->from);
+        $delimit_query_builder = new delimit_query_builder($this->repository, $this->joins, $this->select, $this->from, $this->as);
         return $delimit_query_builder->where($column, $operator, $value);
     }
 
@@ -108,9 +114,7 @@ class select_query_builder implements query_builder_interface
 
     public function to_sql(): string
     {
-        $fromsql = count($this->from) ? ', {' . implode('}, {', $this->from) . '}' : '';
-        $sql = 'SELECT ' . implode(', ', $this->select) . ' FROM ' . $this->repository::$tablename . $fromsql . ' '
-            . implode(' ', $this->joins);
-        return $sql;
+        $delimitquerybuilder = new delimit_query_builder($this->repository, $this->joins, $this->select, $this->from, $this->as);
+        return $delimitquerybuilder->to_sql();
     }
 }

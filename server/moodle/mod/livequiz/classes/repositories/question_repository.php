@@ -79,15 +79,30 @@ class question_repository extends abstract_crud_repository
     }
 
     /**
+     * Insert an array of questions into the database
+     * @param array<question> $entities the list of questions to insert
+     * @return array<int> the ids of the inserted questions
+     * @throws dml_exception
+     */
+    public function insert_array_get_ids(array $entities): array
+    {
+        global $DB;
+        $ids = [];
+        foreach ($entities as $entity) {
+            $ids[] = $DB->insert_record(self::$tablename, $entity->get_data());
+        }
+        return $ids;
+    }
+
+    /**
+     * Insert an array of entities into the database without returning the ids
+     * @param array<question> $entities
      * @throws coding_exception
      * @throws dml_exception
      */
     public function insert_array(array $entities): void
     {
         global $DB;
-        for ($i = 0; $i < count($entities); $i++) {
-            $entities[$i] = $entities[$i]->get_data();
-        }
         $DB->insert_records(self::$tablename, $entities);
     }
 }

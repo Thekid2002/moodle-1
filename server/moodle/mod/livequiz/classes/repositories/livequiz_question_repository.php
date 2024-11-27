@@ -2,8 +2,10 @@
 
 namespace mod_livequiz\repositories;
 
+use coding_exception;
 use dml_exception;
 use mod_livequiz\models\abstract_db_model;
+use mod_livequiz\models\livequiz_questions_relation;
 use mod_livequiz\models\question;
 use mod_livequiz\query\delete_query_builder;
 use mod_livequiz\query\delimit_query_builder;
@@ -65,9 +67,32 @@ class livequiz_question_repository extends abstract_crud_repository
         return $DB->insert_record(self::$tablename, $entity->get_data());
     }
 
+    /**
+     * Insert an array of livequiz questions into the database
+     * @param array<livequiz_questions_relation> $entities the list of relations to insert
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function insert_array(array $entities): void
     {
-        // TODO: Implement insert_array() method.
+        global $DB;
+        $DB->insert_records(self::$tablename, $entities);
+    }
+
+    /**
+     * Insert an array of entities into the database and return the ids of the inserted entities
+     * @param array<livequiz_questions_relation> $entities An array to insert into the database
+     * @return array<int> An array of the ids of the inserted entities
+     * @throws dml_exception
+     */
+    public function insert_array_get_ids(array $entities): array
+    {
+        global $DB;
+        $ids = [];
+        foreach ($entities as $entity) {
+            $ids[] = $DB->insert_record(self::$tablename, $entity->get_data());
+        }
+        return $ids;
     }
 
     public function update(abstract_db_model $entity): void

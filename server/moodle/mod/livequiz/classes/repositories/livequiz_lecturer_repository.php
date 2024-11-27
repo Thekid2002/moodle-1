@@ -66,11 +66,27 @@ class livequiz_lecturer_repository extends abstract_crud_repository
     }
 
     /**
-     * Insert an array of entities into the database
-     * @param array $entities An array of entities to insert into the database
-     * @return void Insert an array of entities into the database
+     * Insert an array of livequiz_lecture_relation into the database and return the ids of the inserted entities
+     * @param array<livequiz_lecturer_relation> $entities An array to insert into the database
+     * @return array<int> An array of the ids of the inserted entities
      * @throws dml_exception
+     */
+    public function insert_array_get_ids(array $entities): array
+    {
+        global $DB;
+        $ids = [];
+        for ($i = 0; $i < count($entities); $i++) {
+            $ids[] = $DB->insert_record(self::$tablename, $entities[$i]->get_data());
+        }
+        return $ids;
+    }
+
+    /**
+     * Insert an array of livequiz_lecturer_relation into the database
+     * @param array<livequiz_lecturer_relation> $entities
+     * @return void
      * @throws coding_exception
+     * @throws dml_exception
      */
     public function insert_array(array $entities): void
     {

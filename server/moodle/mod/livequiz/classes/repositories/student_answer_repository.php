@@ -90,6 +90,8 @@ class student_answer_repository extends abstract_crud_repository {
     }
 
     /**
+     * Insert an array of student answers into the database
+     * @param array<students_answers_relation> $entities the list of student answers to insert
      * @throws coding_exception
      * @throws dml_exception
      */
@@ -100,5 +102,21 @@ class student_answer_repository extends abstract_crud_repository {
             $entities[$i] = $entities[$i]->get_data();
         }
         $DB->insert_records(self::$tablename, $entities);
+    }
+
+    /**
+     * Insert an array of student answers into the database and return the ids of the inserted entities
+     * @param array<students_answers_relation> $entities An array to insert into the database
+     * @return array<int> An array of the ids of the inserted entities
+     * @throws dml_exception
+     */
+    public function insert_array_get_ids(array $entities): array
+    {
+        global $DB;
+        $ids = [];
+        for ($i = 0; $i < count($entities); $i++) {
+            $ids[] = $DB->insert_record(self::$tablename, $entities[$i]->get_data());
+        }
+        return $ids;
     }
 }

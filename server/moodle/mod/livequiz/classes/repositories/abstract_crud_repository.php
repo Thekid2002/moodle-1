@@ -31,10 +31,20 @@ abstract class abstract_crud_repository {
      */
     public static string $tablename;
 
+    /**
+     * @var unit_of_work $unitofwork The unit of work to use.
+     */
+    protected unit_of_work $unitofwork;
+
+    function __construct(unit_of_work $unitofwork) {
+        $this->unitofwork = $unitofwork;
+    }
+
     public abstract function select(select_query_builder | delimit_query_builder $query_builder): abstract_db_model;
     public abstract function select_all(select_query_builder | delimit_query_builder $query_builder): array;
     public abstract function insert(abstract_db_model $entity): int;
     public abstract function insert_array(array $entities): void;
+    public abstract function insert_array_get_ids(array $entities): array;
     public abstract function update(abstract_db_model $entity): void;
     public abstract function delete(delete_query_builder $delete_query_builder): void;
 }

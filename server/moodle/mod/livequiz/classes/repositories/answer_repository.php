@@ -9,7 +9,6 @@ use mod_livequiz\models\answer;
 use mod_livequiz\query\delimit_query_builder;
 use mod_livequiz\query\select_query_builder;
 use mod_livequiz\query\delete_query_builder;
-use mod_livequiz\unitofwork\unit_of_work;
 
 class answer_repository extends abstract_crud_repository {
 
@@ -69,25 +68,33 @@ class answer_repository extends abstract_crud_repository {
 
     /**
      * Insert an array of answers into the database
-     * @param array $entities the list of answers to insert
-     * @return void
-     * @throws coding_exception
+     * @param array<answer> $entities the list of answers to insert
      * @throws dml_exception
+     * @throws coding_exception
      */
     public function insert_array(array $entities): void
     {
         global $DB;
-        for ($i = 0; $i < count($entities); $i++) {
-            if (!($entities[$i] instanceof answer)) {
-                throw new coding_exception('Entity is not an instance of answer');
-            }
-
-            $entities[$i] = $entities[$i]->get_data();
-        }
         $DB->insert_records(self::$tablename, $entities);
     }
 
-    public function update(\mod_livequiz\models\abstract_db_model $entity): void
+    /**
+     * Insert an array of answers into the database
+     * @param array<answer> $entities the list of answers to insert
+     * @return array<int> the ids of the inserted answers
+     * @throws dml_exception
+     */
+    public function insert_array_get_ids(array $entities): array
+    {
+        global $DB;
+        $ids = [];
+        foreach ($entities as $entity) {
+            $ids[] = $DB->insert_record(self::$tablename, $entity->get_data());
+        }
+        return $ids;
+    }
+
+    public function update(abstract_db_model $entity): void
     {
         // TODO: Implement update() method.
     }

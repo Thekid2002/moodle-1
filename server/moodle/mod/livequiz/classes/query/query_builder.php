@@ -16,7 +16,6 @@
 
 namespace mod_livequiz\query;
 
-use core_reportbuilder\external\conditions\delete;
 use mod_livequiz\models\abstract_db_model;
 use mod_livequiz\repositories\abstract_crud_repository;
 
@@ -51,8 +50,8 @@ class query_builder implements query_builder_interface {
      * @param array | string $columns the columns to select
      * @return select_query_builder the select query builder
      */
-    public function select(array | string $columns = '*'): select_query_builder {
-        return new select_query_builder($this->repository, $columns);
+    public function select(array | string $columns = '*', string | null $as = null): select_query_builder {
+        return new select_query_builder($this->repository, $columns, $as);
     }
 
     public function update(abstract_db_model $entity): void {
@@ -66,4 +65,25 @@ class query_builder implements query_builder_interface {
     public function insert(abstract_db_model $entitiy): int {
         return $this->repository->insert($entitiy);
     }
+
+    /**
+     * Insert an array of entities into the database and return the ids of the inserted entities.
+     * @param array<abstract_db_model> $entities
+     * @return array<int> the ids of the inserted entities
+     */
+    public function insert_array_get_ids(array $entities): array
+    {
+        return $this->repository->insert_array_get_ids($entities);
+    }
+
+    /**
+     * Insert an array of entities into the database.
+     * @param array<abstract_db_model> $entities
+     * @return void
+     */
+    public function insert_array(array $entities): void {
+        $this->repository->insert_array($entities);
+    }
+
+
 }

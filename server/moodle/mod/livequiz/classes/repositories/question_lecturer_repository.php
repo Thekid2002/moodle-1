@@ -5,6 +5,7 @@ namespace mod_livequiz\classes\repositories;
 use coding_exception;
 use dml_exception;
 use mod_livequiz\models\abstract_db_model;
+use mod_livequiz\models\question;
 use mod_livequiz\models\questions_lecturer_relation;
 use mod_livequiz\query\delete_query_builder;
 use mod_livequiz\query\delimit_query_builder;
@@ -69,16 +70,29 @@ class question_lecturer_repository extends abstract_crud_repository
 
     /**
      * Insert an array of entities into the database
-     * @param array $entities
+     * @param array<question> $entities
+     * @return array<int>
+     * @throws dml_exception
+     */
+    public function insert_array_get_ids(array $entities): array
+    {
+        global $DB;
+        $ids = [];
+        foreach ($entities as $entity) {
+            $ids[] = $DB->insert_record(self::$tablename, $entity->get_data());
+        }
+        return $ids;
+    }
+
+    /**
+     * Insert an array of entities into the database without returning the ids
+     * @param array<question> $entities
      * @throws coding_exception
      * @throws dml_exception
      */
     public function insert_array(array $entities): void
     {
         global $DB;
-        for ($i = 0; $i < count($entities); $i++) {
-            $entities[$i] = $entities[$i]->get_data();
-        }
         $DB->insert_records(self::$tablename, $entities);
     }
 
