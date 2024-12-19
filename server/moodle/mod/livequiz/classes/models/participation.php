@@ -16,7 +16,6 @@
 
 namespace mod_livequiz\models;
 
-use stdClass;
 
 /**
  * Class Participation
@@ -30,7 +29,7 @@ use stdClass;
  */
 class participation {
     /**
-     * Participation id
+     * Participation id. This is the primary key in the participation table, and is not set by the constructor.
      * @var int $id
      */
     private int $id;
@@ -53,32 +52,6 @@ class participation {
         $this->studentid = $studentid;
         $this->livequizid = $livequizid;
     }
-    /**
-     * Summary of add_participation
-     * @return boolean
-     */
-    public function add_participation(): bool {
-        global $DB;
-        $record = new stdClass();
-        $record->studentid = $this->studentid;
-        $record->livequizid = $this->livequizid;
-        $success = false;
-        try {
-            $success = $DB->insert_record('participation', $record);
-        } catch (\dml_exception $dmle) {
-            echo $dmle->getMessage();
-        }
-        return $success;
-    }
-    /**
-     * Summary of get_participation_by_studentid
-     * @param  $studentid
-     */
-    public static function get_participation_by_studentid($studentid) {
-        global $DB;
-        return $DB->get_record('participation', ['studentid' => $studentid]);
-    }
-
     /**
      * get_id
      * @return int

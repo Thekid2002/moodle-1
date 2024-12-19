@@ -17,7 +17,12 @@
 namespace mod_livequiz\output;
 
 use core\exception\moodle_exception;
+use dml_exception;
 use mod_livequiz\models\livequiz;
+use mod_livequiz\models\livequiz_questions_lecturer_relation;
+use mod_livequiz\models\question;
+use mod_livequiz\repositories\question_repository;
+use mod_livequiz\services\livequiz_services;
 use renderable;
 use renderer_base;
 use templatable;
@@ -25,30 +30,35 @@ use stdClass;
 use moodle_url;
 
 /**
- * Class index_page
+ * Class index_page_teacher
  * @package mod_livequiz
  * @copyright 2024 Software AAU
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class index_page implements renderable, templatable {
+class index_page_teacher implements renderable, templatable {
     /** @var int $quizid the livequiz to take or retake*/
     private int $quizid;
-    /** @var int $studentid the id of the student who is interacting with the quiz.
-     */
-    private $studentid;
+    /** @var int $teacherid the id of the teacher who is interacting with the quiz. */
+    private int $lecturerid;
     /** @var int $cmid the course module id */
     protected int $cmid;
 
+    /** @var livequiz $livequiz the livequiz object */
+    private livequiz $livequiz;
+
     /**
-     * index_page constructor.
+     * index_page_teacher constructor.
      * @param int $quizid
-     * @param int $studentid
-     * @param int $courseid
+     * @param int $lecturerid
+     * @param int $cmid
+     * @throws dml_exception
      */
-    public function __construct(int $quizid, int $studentid, int $courseid) {
+    public function __construct(int $quizid, int $lecturerid, int $cmid) {
         $this->quizid = $quizid;
-        $this->studentid = $studentid;
-        $this->cmid = $courseid;
+        $this->lecturerid = $lecturerid;
+        $this->cmid = $cmid;
+        $service = livequiz_services::get_singleton_service_instance();
+        $this->livequiz = $service->get_livequiz_instance($quizid);
     }
 
     /**
@@ -59,10 +69,21 @@ class index_page implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $data = new stdClass();
-        $data->studentid = $this->studentid;
+        $service = livequiz_services::get_singleton_service_instance();
+        $data = $this->livequiz->prepare_for_template();
+        $data->hasquestions = !empty($this->livequiz->get_questions());
+        $data->pagename = "Quiz editor page";
+        $data->lecturerid = $this->lecturerid;
         $data->quizid = $this->quizid;
+        $data->oldquestions = [];
+        $premadequestions = $service->get_lecturer_questions_relation_by_lecturer_id($this->lecturerid);
+        foreach ($premadequestions as $premadequestion) {
+            $question = $service->get_question_from_id(intval($premadequestion->question_id));
+            $data->oldquestions[] = $question->prepare_for_template(new stdClass());
+        }
+
         $data->url = new moodle_url('/mod/livequiz/attempt.php', ['cmid' => $this->cmid]);
+        $data->islecturer = true;
         return $data;
     }
 }

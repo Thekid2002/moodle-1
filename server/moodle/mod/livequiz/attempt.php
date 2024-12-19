@@ -23,8 +23,8 @@
 
 require_once('../../config.php');
 require_once($CFG->libdir . '/accesslib.php');
-require_once('readdemodata.php');
 
+use mod_livequiz\output\take_livequiz_page;
 use mod_livequiz\services\livequiz_services;
 
 global $PAGE, $OUTPUT, $USER;
@@ -35,15 +35,8 @@ $questionindex = optional_param('questionindex', 0, PARAM_INT); // Question id, 
 [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'livequiz');
 $instance = $DB->get_record('livequiz', ['id' => $cm->instance], '*', MUST_EXIST);
 
-// Read demo data - REMOVE WHEN PUSHING TO STAGING.
 $livequizservice = livequiz_services::get_singleton_service_instance();
 $currentquiz = $livequizservice->get_livequiz_instance($instance->id);
-if (empty($currentquiz->get_questions())) { // If the quiz has no questions, insert demo data.
-    $demodatareader = new \mod_livequiz\readdemodata();
-    $demoquiz = $demodatareader->insertdemodata($currentquiz);
-} else {
-    $demoquiz = $currentquiz;
-}
 
 if (!$cm) { // If course module is not set, throw an exception.
     throw new moodle_exception('invalidcoursemodule', 'error');
@@ -54,6 +47,12 @@ if ($cm->course !== $course->id) { // Check if the course module matches the cou
 
 require_login($course, false, $cm);
 $PAGE->set_cacheable(false);
+$PAGE->requires->css('/mod/livequiz/style.css'); // Adds styling to the page.
+
+// Suppress the activity description by overriding the module settings.
+$PAGE->set_context(context_module::instance($cmid));
+$PAGE->activityrecord->intro = null;
+$PAGE->activityrecord->introformat = null;
 
 if (!isset($_SESSION['completed'])) { // If the session variable is not set, set it to false.
     $_SESSION['completed'] = false;
@@ -79,7 +78,7 @@ $PAGE->set_heading(get_string('modulename', 'mod_livequiz'));
 
 // Rendering.
 $output = $PAGE->get_renderer('mod_livequiz');
-$takelivequiz = new \mod_livequiz\output\take_livequiz_page($cmid, $demoquiz, $questionindex, $USER->id);
+$takelivequiz = new take_livequiz_page($cmid, $currentquiz, $questionindex, $USER->id);
 
 // Output.
 echo $OUTPUT->header();
